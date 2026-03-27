@@ -31,33 +31,33 @@ function HeroSection({ onStartBooth }) {
       {/* Content */}
       <div className="relative z-10 landing-container min-h-screen flex flex-col px-5 sm:px-6 lg:px-8">
         {/* Navigation */}
-        <nav className="py-5 sm:py-6 flex items-center justify-between border-b border-ink/10">
+        <nav className="py-5 sm:py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Logo */}
-            <span className="font-logo text-xl sm:text-2xl md:text-3xl text-ink font-bold tracking-tight">
-              Clix<span className="font-accent text-ink">frame</span>
+            <span className="font-logo text-2xl sm:text-2xl md:text-3xl text-ink font-bold tracking-tight">
+              Clix<span className="font-accent text-3xl sm:text-3xl md:text-4xl">frame</span>
             </span>
           </div>
         </nav>
 
         {/* Hero Content */}
-        <div className="flex-1 flex items-center py-10 sm:py-12 lg:py-0">
-          <div className="w-full grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-center">
+        <div className="flex-1 flex items-center pt-8 pb-12 sm:pt-0 sm:pb-0">
+          <div className="w-full grid lg:grid-cols-2 gap-8 sm:gap-14 lg:gap-20 items-center">
             {/* Left: Text Content - appears FIRST on mobile */}
-            <div className={`space-y-6 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
+            <div className={`space-y-5 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
               {/* Main Headline */}
-              <div className="space-y-4 sm:space-y-6">
-                <h1 className="font-hero text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-ink font-semibold leading-[1.15] tracking-tight">
+              <div className="space-y-3 sm:space-y-5">
+                <h1 className="font-hero text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl text-ink font-bold leading-[1.1] tracking-tight">
                   Strike a Pose.
                   <br />
-                  <span className="mt-2 inline-block">Frame the Moment.</span>
+                  <span className="mt-1 inline-block">Frame the Moment.</span>
                 </h1>
 
                 {/* Rotating Subline */}
-                <div className="h-10 sm:h-12 md:h-14 flex items-center justify-center lg:justify-start mt-4">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <span className="font-subheading text-base sm:text-lg md:text-xl lg:text-2xl text-mid">Perfect for</span>
-                    <div className="relative h-8 sm:h-10 md:h-11 w-36 sm:w-48 md:w-56 overflow-hidden">
+                <div className="h-10 sm:h-12 md:h-14 flex items-center justify-center lg:justify-start">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="font-body text-base sm:text-lg md:text-xl text-mid">Perfect for</span>
+                    <div className="relative h-8 sm:h-10 md:h-11 w-40 sm:w-48 md:w-56 overflow-hidden">
                       {rotatingPhrases.map((phrase, index) => (
                         <div
                           key={phrase}
@@ -69,7 +69,7 @@ function HeroSection({ onStartBooth }) {
                               : 'opacity-0 translate-y-full'
                           }`}
                         >
-                          <span className="font-accent text-xl sm:text-2xl md:text-3xl text-ink whitespace-nowrap">
+                          <span className="font-accent text-2xl sm:text-2xl md:text-3xl text-ink whitespace-nowrap">
                             {phrase}
                           </span>
                         </div>
@@ -80,7 +80,7 @@ function HeroSection({ onStartBooth }) {
               </div>
 
               {/* CTA Buttons */}
-              <div className={`flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center lg:justify-start pt-2 ${isVisible ? 'animate-slide-up delay-200' : 'opacity-0'}`}>
+              <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-200' : 'opacity-0'}`}>
                 <Button variant="primary" size="lg" onClick={onStartBooth} className="w-full sm:w-auto">
                   Start the Booth
                 </Button>
@@ -95,27 +95,27 @@ function HeroSection({ onStartBooth }) {
               </div>
 
               {/* Emotional tagline */}
-              <p className={`font-body text-mid text-sm sm:text-base italic leading-relaxed ${isVisible ? 'animate-slide-up delay-300' : 'opacity-0'}`}>
+              <p className={`font-body text-mid text-sm sm:text-base italic leading-relaxed max-w-md mx-auto lg:mx-0 ${isVisible ? 'animate-slide-up delay-300' : 'opacity-0'}`}>
                 "Because the best memories aren't just clicked—they're kept."
               </p>
 
               {/* Social Proof */}
-              <div className={`flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-400' : 'opacity-0'}`}>
-                <div className="social-proof-badge">
+              <div className={`flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-400' : 'opacity-0'}`}>
+                <div className="font-body text-xs sm:text-sm text-mid bg-ghost/50 px-3 py-1.5 rounded-full">
                   10,000+ memories
                 </div>
-                <div className="social-proof-badge">
+                <div className="font-body text-xs sm:text-sm text-mid bg-ghost/50 px-3 py-1.5 rounded-full">
                   No signup
                 </div>
-                <div className="social-proof-badge">
+                <div className="font-body text-xs sm:text-sm text-mid bg-ghost/50 px-3 py-1.5 rounded-full">
                   Instant fun
                 </div>
               </div>
             </div>
 
             {/* Right: Demo Preview - appears SECOND on mobile */}
-            <div className={`flex justify-center order-2 mt-4 sm:mt-0 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
-              <DemoPreview className="w-44 sm:w-52 md:w-60 lg:w-72" />
+            <div className={`flex justify-center order-2 mt-2 sm:mt-0 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
+              <DemoPreview className="w-40 sm:w-52 md:w-60 lg:w-72" />
             </div>
           </div>
         </div>

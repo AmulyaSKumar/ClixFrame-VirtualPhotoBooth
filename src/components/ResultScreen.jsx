@@ -13,6 +13,7 @@ function ResultScreen({
   const [selectedFilter, setSelectedFilter] = useState('None')
   const [frameColor, setFrameColor] = useState('white')
   const [isDownloading, setIsDownloading] = useState(false)
+  const [activeTab, setActiveTab] = useState('filter')
 
   const layout = selectedTemplate?.layout || '4x1'
 
@@ -24,11 +25,11 @@ function ResultScreen({
   ]
 
   const frameColors = [
-    { value: 'white', textColor: '#0D0D0D' },
-    { value: '#0D0D0D', textColor: '#FAFAF8' },
-    { value: '#F5F0E6', textColor: '#0D0D0D' },
-    { value: '#FFE4EC', textColor: '#0D0D0D' },
-    { value: '#E6E6FA', textColor: '#0D0D0D' },
+    { value: 'white', label: 'White', textColor: '#0D0D0D' },
+    { value: '#0D0D0D', label: 'Black', textColor: '#FAFAF8' },
+    { value: '#F5F0E6', label: 'Cream', textColor: '#0D0D0D' },
+    { value: '#FFE4EC', label: 'Pink', textColor: '#0D0D0D' },
+    { value: '#E6E6FA', label: 'Lavender', textColor: '#0D0D0D' },
   ]
 
   const currentFrameColor = frameColors.find(c => c.value === frameColor)
@@ -231,9 +232,9 @@ function ResultScreen({
   const borderStyle = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
 
   const getStripClasses = () => {
-    if (layout === '4x1') return 'w-[150px] sm:w-[180px] md:w-[220px]'
-    else if (layout === '1x4') return 'w-[260px] sm:w-[320px] md:w-[400px] max-w-[90vw]'
-    else return 'w-[180px] sm:w-[220px] md:w-[280px]'
+    if (layout === '4x1') return 'w-[140px] sm:w-[170px] md:w-[200px]'
+    else if (layout === '1x4') return 'w-[260px] sm:w-[320px] md:w-[380px] max-w-[90vw]'
+    else return 'w-[170px] sm:w-[200px] md:w-[250px]'
   }
 
   const getPhotoGridClasses = () => {
@@ -248,80 +249,86 @@ function ResultScreen({
   }
 
   return (
-    <section className="min-h-screen w-full bg-bg flex flex-col">
+    <section className="min-h-screen w-full bg-ink flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-bg/10">
         <button
           type="button"
-          className="flex items-center gap-2 text-mid hover:text-ink transition-colors"
+          className="flex items-center gap-2 text-bg/60 hover:text-bg transition-colors"
           onClick={onRetake}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="font-body text-sm">Retake</span>
+          <span className="font-body text-sm hidden sm:inline">Retake</span>
         </button>
-        <div className="font-logo text-xl font-bold tracking-tight">
+        <div className="font-logo text-xl font-bold tracking-tight text-bg">
           Clix<span className="font-accent text-2xl">frame</span>
         </div>
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="font-subheading text-sm font-medium bg-ink text-bg px-5 py-2 rounded-full hover:bg-ink/90 transition-all disabled:opacity-50"
+          className="font-subheading text-sm font-semibold bg-bg text-ink px-4 sm:px-6 py-2 rounded-full hover:bg-bg/90 transition-all disabled:opacity-50 flex items-center gap-2"
         >
-          {isDownloading ? 'Saving...' : 'Save'}
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>{isDownloading ? 'Saving...' : 'Save'}</span>
         </button>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-auto">
-        {/* Photo Strip */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+        {/* Photo Strip Area */}
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-ink">
           <div
             ref={stripRef}
-            className={`relative p-3 sm:p-4 rounded-2xl shadow-xl ${getStripClasses()}`}
-            style={{ backgroundColor: frameColor, transform: 'rotate(-1deg)' }}
+            className={`relative p-3 sm:p-4 rounded-xl shadow-2xl ${getStripClasses()}`}
+            style={{ backgroundColor: frameColor }}
             onPointerDown={() => setActiveStickerId(null)}
           >
+            {/* Logo */}
             <div
-              className="text-center pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-dashed"
+              className="text-center pb-2 mb-2 border-b border-dashed"
               style={{ borderColor: borderStyle }}
             >
-              <span className="font-logo text-base sm:text-xl font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
-                Clix<span className="font-accent text-lg sm:text-2xl">frame</span>
+              <span className="font-logo text-sm sm:text-base font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
+                Clix<span className="font-accent text-base sm:text-lg">frame</span>
               </span>
             </div>
 
+            {/* Photos Grid */}
             <div className={getPhotoGridClasses()}>
               {stripSlots.map((photo, index) => (
                 <div
                   key={index}
-                  className={`${getPhotoClasses()} overflow-hidden bg-paper rounded-lg`}
+                  className={`${getPhotoClasses()} overflow-hidden bg-gray-200 rounded`}
                   style={{ filter: currentFilter?.style }}
                 >
                   {typeof photo === 'string' && photo.startsWith('data:') ? (
                     <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-ghost/50">
-                      <span className="font-hero text-xl sm:text-2xl font-bold text-mid/40">{index + 1}</span>
+                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                      <span className="font-hero text-lg font-bold text-gray-400">{index + 1}</span>
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
+            {/* Stickers */}
             {stickers.map((sticker) => (
               <div
                 key={sticker.id}
-                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-1 ring-ink' : ''}`}
+                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-2 ring-blue-500 rounded' : ''}`}
                 style={{ left: sticker.x, top: sticker.y, width: sticker.size, height: sticker.size }}
                 onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
               >
-                <span className="text-lg">{sticker.emoji}</span>
+                <span className="text-xl">{sticker.emoji}</span>
                 {activeStickerId === sticker.id && (
                   <button
                     onClick={() => handleDeleteSticker(sticker.id)}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-ink text-bg text-[10px] flex items-center justify-center rounded-full"
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full shadow"
                   >
                     ×
                   </button>
@@ -331,51 +338,90 @@ function ResultScreen({
           </div>
         </div>
 
-        {/* Controls - Bottom bar on mobile, sidebar on desktop */}
-        <div className="w-full lg:w-80 bg-ghost/30 border-t lg:border-t-0 lg:border-l border-ink/5 p-5 space-y-6">
-          {/* Filters */}
-          <div>
-            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Filter</p>
-            <div className="flex gap-2">
-              {filters.map((filter) => (
-                <button
-                  key={filter.name}
-                  onClick={() => setSelectedFilter(filter.name)}
-                  className={`flex-1 py-2 text-sm font-body rounded-full transition-all ${
-                    selectedFilter === filter.name
-                      ? 'bg-ink text-bg'
-                      : 'bg-bg text-ink hover:bg-ink/10'
-                  }`}
-                >
-                  {filter.name}
-                </button>
-              ))}
-            </div>
+        {/* Controls Panel */}
+        <div className="w-full lg:w-[340px] bg-bg flex flex-col">
+          {/* Tab Navigation */}
+          <div className="flex border-b border-ink/10">
+            {[
+              { id: 'filter', label: 'Filter' },
+              { id: 'frame', label: 'Frame' },
+              { id: 'sticker', label: 'Stickers' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 py-3 sm:py-4 font-subheading text-sm font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'text-ink border-b-2 border-ink'
+                    : 'text-mid hover:text-ink'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          {/* Frame Colors */}
-          <div>
-            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Frame</p>
-            <div className="flex gap-3">
-              {frameColors.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setFrameColor(color.value)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    frameColor === color.value
-                      ? 'ring-2 ring-ink ring-offset-2 scale-110'
-                      : 'border-ink/10 hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Tab Content */}
+          <div className="flex-1 p-4 sm:p-6 overflow-auto">
+            {/* Filter Tab */}
+            {activeTab === 'filter' && (
+              <div className="space-y-3">
+                {filters.map((filter) => (
+                  <button
+                    key={filter.name}
+                    onClick={() => setSelectedFilter(filter.name)}
+                    className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-xl transition-all ${
+                      selectedFilter === filter.name
+                        ? 'bg-ink text-bg'
+                        : 'bg-ghost/50 text-ink hover:bg-ghost'
+                    }`}
+                  >
+                    <span className="font-body text-sm sm:text-base">{filter.name}</span>
+                    {selectedFilter === filter.name && (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
 
-          {/* Stickers */}
-          <div>
-            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Stickers</p>
-            <StickerPanel onSelect={handleAddSticker} />
+            {/* Frame Tab */}
+            {activeTab === 'frame' && (
+              <div className="space-y-3">
+                {frameColors.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setFrameColor(color.value)}
+                    className={`w-full flex items-center gap-4 p-3 sm:p-4 rounded-xl transition-all ${
+                      frameColor === color.value
+                        ? 'bg-ink text-bg'
+                        : 'bg-ghost/50 text-ink hover:bg-ghost'
+                    }`}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-full border-2 border-ink/20 flex-shrink-0"
+                      style={{ backgroundColor: color.value }}
+                    />
+                    <span className="font-body text-sm sm:text-base">{color.label}</span>
+                    {frameColor === color.value && (
+                      <svg className="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Stickers Tab */}
+            {activeTab === 'sticker' && (
+              <div>
+                <p className="font-body text-sm text-mid mb-4">Tap to add, drag to move</p>
+                <StickerPanel onSelect={handleAddSticker} />
+              </div>
+            )}
           </div>
         </div>
       </div>
