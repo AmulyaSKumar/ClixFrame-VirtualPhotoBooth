@@ -1,6 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react'
 import StickerPanel from './StickerPanel'
-import Logo from './Logo'
 
 function ResultScreen({
   photos = [],
@@ -154,9 +153,9 @@ function ResultScreen({
       const borderColor = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
 
       ctx.fillStyle = textColor
-      ctx.font = 'bold 24px "Playfair Display", serif'
+      ctx.font = 'bold 24px "Syne", sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('ClixFrame', stripWidth / 2, padding + 30)
+      ctx.fillText('Clixframe', stripWidth / 2, padding + 30)
 
       ctx.strokeStyle = borderColor
       ctx.setLineDash([4, 4])
@@ -251,19 +250,24 @@ function ResultScreen({
   return (
     <section className="min-h-screen w-full bg-bg flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-ink/10">
+      <header className="flex items-center justify-between px-6 py-4">
         <button
           type="button"
-          className="font-typewriter text-xs text-mid hover:text-ink transition-colors"
+          className="flex items-center gap-2 text-mid hover:text-ink transition-colors"
           onClick={onRetake}
         >
-          &larr; Retake
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="font-body text-sm">Retake</span>
         </button>
-        <Logo size="sm" showText={true} />
+        <div className="font-logo text-xl font-bold tracking-tight">
+          Clix<span className="font-accent text-2xl">frame</span>
+        </div>
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="font-typewriter text-xs bg-ink text-bg px-3 py-1.5 hover:bg-ink/80 transition-colors disabled:opacity-50"
+          className="font-subheading text-sm font-medium bg-ink text-bg px-5 py-2 rounded-full hover:bg-ink/90 transition-all disabled:opacity-50"
         >
           {isDownloading ? 'Saving...' : 'Save'}
         </button>
@@ -272,19 +276,19 @@ function ResultScreen({
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-auto">
         {/* Photo Strip */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
           <div
             ref={stripRef}
-            className={`relative p-2 sm:p-2.5 shadow-lg ${getStripClasses()}`}
+            className={`relative p-3 sm:p-4 rounded-2xl shadow-xl ${getStripClasses()}`}
             style={{ backgroundColor: frameColor, transform: 'rotate(-1deg)' }}
             onPointerDown={() => setActiveStickerId(null)}
           >
             <div
-              className="text-center pb-1 sm:pb-1.5 mb-1.5 sm:mb-2 border-b border-dashed"
+              className="text-center pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-dashed"
               style={{ borderColor: borderStyle }}
             >
-              <span className="font-logo text-sm sm:text-lg tracking-wide" style={{ color: currentFrameColor?.textColor }}>
-                Clix<span className="font-accent">Frame</span>
+              <span className="font-logo text-base sm:text-xl font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
+                Clix<span className="font-accent text-lg sm:text-2xl">frame</span>
               </span>
             </div>
 
@@ -292,14 +296,14 @@ function ResultScreen({
               {stripSlots.map((photo, index) => (
                 <div
                   key={index}
-                  className={`${getPhotoClasses()} overflow-hidden bg-paper`}
+                  className={`${getPhotoClasses()} overflow-hidden bg-paper rounded-lg`}
                   style={{ filter: currentFilter?.style }}
                 >
                   {typeof photo === 'string' && photo.startsWith('data:') ? (
                     <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="font-hero text-lg sm:text-xl text-mid">{['I', 'II', 'III', 'IV'][index]}</span>
+                    <div className="w-full h-full flex items-center justify-center bg-ghost/50">
+                      <span className="font-hero text-xl sm:text-2xl font-bold text-mid/40">{index + 1}</span>
                     </div>
                   )}
                 </div>
@@ -328,19 +332,19 @@ function ResultScreen({
         </div>
 
         {/* Controls - Bottom bar on mobile, sidebar on desktop */}
-        <div className="w-full lg:w-80 bg-paper border-t lg:border-t-0 lg:border-l border-ink/10 p-4 space-y-5">
+        <div className="w-full lg:w-80 bg-ghost/30 border-t lg:border-t-0 lg:border-l border-ink/5 p-5 space-y-6">
           {/* Filters */}
           <div>
-            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Filter</p>
-            <div className="flex gap-1">
+            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Filter</p>
+            <div className="flex gap-2">
               {filters.map((filter) => (
                 <button
                   key={filter.name}
                   onClick={() => setSelectedFilter(filter.name)}
-                  className={`flex-1 py-1.5 text-xs font-typewriter transition-all ${
+                  className={`flex-1 py-2 text-sm font-body rounded-full transition-all ${
                     selectedFilter === filter.name
                       ? 'bg-ink text-bg'
-                      : 'bg-transparent text-ink hover:bg-ink/10'
+                      : 'bg-bg text-ink hover:bg-ink/10'
                   }`}
                 >
                   {filter.name}
@@ -351,16 +355,16 @@ function ResultScreen({
 
           {/* Frame Colors */}
           <div>
-            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Frame</p>
-            <div className="flex gap-2">
+            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Frame</p>
+            <div className="flex gap-3">
               {frameColors.map((color) => (
                 <button
                   key={color.value}
                   onClick={() => setFrameColor(color.value)}
-                  className={`w-7 h-7 rounded-full border transition-all ${
+                  className={`w-8 h-8 rounded-full border-2 transition-all ${
                     frameColor === color.value
                       ? 'ring-2 ring-ink ring-offset-2 scale-110'
-                      : 'border-ink/20 hover:scale-105'
+                      : 'border-ink/10 hover:scale-105'
                   }`}
                   style={{ backgroundColor: color.value }}
                 />
@@ -370,7 +374,7 @@ function ResultScreen({
 
           {/* Stickers */}
           <div>
-            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Stickers</p>
+            <p className="font-subheading text-xs font-semibold text-mid uppercase tracking-wider mb-3">Stickers</p>
             <StickerPanel onSelect={handleAddSticker} />
           </div>
         </div>

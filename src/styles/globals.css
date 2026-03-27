@@ -7,12 +7,12 @@
   ======================================== */
 
   /* Typography - Font Families */
-  --font-logo: "Playfair Display", serif;
-  --font-hero: "Cormorant Garamond", serif;
-  --font-subheading: "Playfair Display", serif;
-  --font-body: "Inter", sans-serif;
-  --font-typewriter: "Space Mono", monospace;
-  --font-accent: "Dancing Script", cursive;
+  --font-logo: "Syne", sans-serif;
+  --font-hero: "Syne", sans-serif;
+  --font-subheading: "Outfit", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-typewriter: "JetBrains Mono", monospace;
+  --font-accent: "Caveat", cursive;
 
   /* Color Palette - Clean B&W with Depth */
   --color-bg: #FAFAFA;
