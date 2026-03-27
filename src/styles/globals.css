@@ -1,0 +1,1190 @@
+@import "tailwindcss";
+
+@theme {
+  /* ========================================
+     ClixFrame Design System
+     Editorial / Vintage Photo Booth Aesthetic
+  ======================================== */
+
+  /* Typography - Font Families */
+  --font-logo: "Playfair Display", serif;
+  --font-hero: "Cormorant Garamond", serif;
+  --font-subheading: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  --font-typewriter: "Space Mono", monospace;
+  --font-accent: "Dancing Script", cursive;
+
+  /* Color Palette - Clean B&W with Depth */
+  --color-bg: #FAFAFA;
+  --color-ink: #0D0D0D;
+  --color-mid: #5C5C5C;
+  --color-ghost: #E8E8E8;
+  --color-accent: #1A1A1A;
+  --color-paper: #F5F5F5;
+
+  /* Mapped to Tailwind color tokens */
+  --color-background: #FAFAFA;
+  --color-foreground: #0D0D0D;
+  --color-card: #FAFAFA;
+  --color-card-foreground: #0D0D0D;
+  --color-primary: #0D0D0D;
+  --color-primary-foreground: #FAFAFA;
+  --color-secondary: #F5F5F5;
+  --color-secondary-foreground: #0D0D0D;
+  --color-muted: #E8E8E8;
+  --color-muted-foreground: #5C5C5C;
+  --color-accent-bg: #1A1A1A;
+  --color-accent-foreground: #FAFAFA;
+  --color-destructive: #0D0D0D;
+  --color-destructive-foreground: #FAFAFA;
+  --color-border: #0D0D0D;
+  --color-input: #E8E6E1;
+  --color-ring: #0D0D0D;
+
+  /* Border radius - softer for editorial feel */
+  --radius-2xl: 0.5rem;
+  --radius-xl: 0.375rem;
+  --radius-lg: 0.25rem;
+  --radius-md: 0.125rem;
+  --radius-sm: 0.0625rem;
+
+  /* Shadows - subtle paper shadows */
+  --shadow-soft: 0 1px 3px rgba(13, 13, 13, 0.08), 0 4px 12px rgba(13, 13, 13, 0.04);
+  --shadow-card: 0 2px 8px rgba(13, 13, 13, 0.06), 0 8px 24px rgba(13, 13, 13, 0.08);
+  --shadow-lift: 0 4px 16px rgba(13, 13, 13, 0.1), 0 12px 32px rgba(13, 13, 13, 0.06);
+
+  /* Animations */
+  --animate-typewriter: typewriter 2.5s steps(20) forwards;
+  --animate-blink: blink 0.8s step-end infinite;
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-fade-up: fade-up 0.8s ease-out forwards;
+  --animate-ink-bleed: ink-bleed 0.3s ease-out forwards;
+  --animate-photo-develop: photo-develop 1.2s ease-out forwards;
+  --animate-tilt-correct: tilt-correct 0.3s ease-out forwards;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-countdown: countdown-pulse 1s ease-in-out infinite;
+
+  @keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes ink-bleed {
+    from {
+      box-shadow: inset 0 0 0 0 var(--color-ink);
+    }
+    to {
+      box-shadow: inset 0 0 0 2px var(--color-ink);
+    }
+  }
+
+  @keyframes photo-develop {
+    0% {
+      opacity: 0;
+      filter: brightness(2) contrast(0.5);
+    }
+    50% {
+      opacity: 0.7;
+      filter: brightness(1.2) contrast(0.8);
+    }
+    100% {
+      opacity: 1;
+      filter: brightness(1) contrast(1);
+    }
+  }
+
+  @keyframes tilt-correct {
+    from { transform: rotate(-2deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  @keyframes countdown-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes flash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  --animate-flash: flash 0.2s ease-out forwards;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  #root {
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  /* Typography hierarchy */
+  h1 {
+    font-family: var(--font-logo);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-family: var(--font-hero);
+    font-size: 64px;
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-family: var(--font-subheading);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--color-ink);
+    line-height: 1.3;
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-subheading);
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+
+  p {
+    font-family: var(--font-body);
+    color: var(--color-mid);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Drop cap for editorial feel */
+  .drop-cap::first-letter {
+    float: left;
+    font-family: var(--font-logo);
+    font-size: 4em;
+    line-height: 0.8;
+    padding-right: 0.1em;
+    color: var(--color-ink);
+  }
+
+  /* Thin rule lines as dividers */
+  hr {
+    border: none;
+    border-top: 1px solid var(--color-ink);
+    margin: 2rem 0;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+  }
+}
+
+@layer components {
+  /* ========================================
+     Card Component - Paper/Editorial Style
+  ======================================== */
+  .card {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-ink);
+    box-shadow: var(--shadow-card);
+    position: relative;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-paper);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (min-width: 640px) {
+    .card-header {
+      padding: 2rem;
+    }
+  }
+
+  .card-title {
+    font-family: var(--font-hero);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 640px) {
+    .card-title {
+      font-size: 2.25rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .card-title {
+      font-size: 2.75rem;
+    }
+  }
+
+  .card-description {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-mid);
+  }
+
+  .card-content {
+    padding: 1.5rem;
+    padding-top: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (min-width: 640px) {
+    .card-content {
+      padding: 2rem;
+      padding-top: 0;
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    padding-top: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (min-width: 640px) {
+    .card-footer {
+      padding: 2rem;
+      padding-top: 0;
+    }
+  }
+
+  /* ========================================
+     Button Component - Ink Bleed Effect
+  ======================================== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    font-family: var(--font-typewriter);
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    user-select: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .btn {
+      font-size: 1rem;
+    }
+  }
+
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink);
+  }
+
+  .btn:disabled {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Primary button - solid ink */
+  .btn-primary {
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+    border-color: var(--color-ink);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-accent);
+    box-shadow: inset 0 0 0 2px var(--color-bg);
+  }
+
+  /* Secondary button - ghost with ink border */
+  .btn-secondary {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-ghost);
+  }
+
+  /* Outline button - ink bleed on hover */
+  .btn-outline {
+    border: 1px solid var(--color-ink);
+    background-color: transparent;
+    color: var(--color-ink);
+  }
+
+  .btn-outline:hover {
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+    background-color: var(--color-paper);
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-mid);
+    border-color: transparent;
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--color-ghost);
+    color: var(--color-ink);
+  }
+
+  /* Accent button */
+  .btn-accent {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    border-color: var(--color-accent);
+  }
+
+  .btn-accent:hover {
+    background-color: var(--color-ink);
+  }
+
+  /* Destructive button */
+  .btn-destructive {
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+    border-color: var(--color-ink);
+  }
+
+  .btn-destructive:hover {
+    background-color: #2a2a2a;
+  }
+
+  /* Button sizes */
+  .btn-sm {
+    height: 2.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .btn-sm {
+      height: 2.5rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .btn-md {
+    height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .btn-md {
+      height: 3rem;
+      padding: 0.75rem 1.5rem;
+    }
+  }
+
+  .btn-lg {
+    height: 3.25rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-size: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .btn-lg {
+      height: 3.75rem;
+      padding-left: 3rem;
+      padding-right: 3rem;
+      font-size: 1.125rem;
+    }
+  }
+
+  .btn-icon {
+    height: 2.5rem;
+    width: 2.5rem;
+    padding: 0;
+  }
+
+  @media (min-width: 640px) {
+    .btn-icon {
+      height: 3rem;
+      width: 3rem;
+    }
+  }
+
+  /* ========================================
+     Input Component - Typewriter Style
+  ======================================== */
+  .input {
+    display: flex;
+    width: 100%;
+    height: 3rem;
+    background-color: var(--color-bg);
+    border: none;
+    border-bottom: 1px solid var(--color-ink);
+    padding: 0.5rem 0.25rem;
+    font-family: var(--font-typewriter);
+    font-size: 1rem;
+    color: var(--color-ink);
+    transition: all 0.2s ease;
+  }
+
+  @media (min-width: 640px) {
+    .input {
+      height: 3.5rem;
+      padding: 0.75rem 0.5rem;
+      font-size: 1.125rem;
+    }
+  }
+
+  .input::placeholder {
+    color: var(--color-mid);
+    font-style: italic;
+  }
+
+  .input:focus-visible {
+    outline: none;
+    border-bottom-width: 2px;
+    background-color: var(--color-paper);
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ========================================
+     Label Component
+  ======================================== */
+  .label {
+    display: block;
+    font-family: var(--font-subheading);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .label {
+      font-size: 1rem;
+    }
+  }
+
+  /* ========================================
+     Chip Component - Minimal Editorial
+  ======================================== */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-ink);
+    padding: 0.375rem 0.875rem;
+    font-family: var(--font-typewriter);
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  @media (min-width: 640px) {
+    .chip {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .chip:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink);
+  }
+
+  .chip-default {
+    background-color: transparent;
+    color: var(--color-ink);
+  }
+
+  .chip-default:hover {
+    background-color: var(--color-ghost);
+  }
+
+  .chip-active {
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  /* ========================================
+     Photo Frame - Vintage Style
+  ======================================== */
+  .photo-frame {
+    position: relative;
+    background-color: white;
+    padding: 0.5rem;
+    box-shadow: var(--shadow-card);
+    transform: rotate(-1deg);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .photo-frame:hover {
+    transform: rotate(0deg);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .photo-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--color-ink);
+    pointer-events: none;
+  }
+
+  /* ========================================
+     Typewriter Text Effect
+  ======================================== */
+  .typewriter {
+    font-family: var(--font-typewriter);
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--color-ink);
+    animation: var(--animate-typewriter), var(--animate-blink);
+  }
+
+  /* ========================================
+     Editorial Accent Text
+  ======================================== */
+  .accent-text {
+    font-family: var(--font-accent);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  /* ========================================
+     Section Reveal Animation
+  ======================================== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .reveal.visible {
+    animation: var(--animate-fade-up);
+  }
+}
+
+/* ========================================
+   Utility Classes
+======================================== */
+.animate-typewriter {
+  animation: var(--animate-typewriter);
+}
+
+.animate-fade-in {
+  animation: var(--animate-fade-in);
+}
+
+.animate-fade-up {
+  animation: var(--animate-fade-up);
+}
+
+.animate-photo-develop {
+  animation: var(--animate-photo-develop);
+}
+
+.animate-pulse-soft {
+  animation: var(--animate-pulse-soft);
+}
+
+.animate-countdown {
+  animation: var(--animate-countdown);
+}
+
+/* Font utility classes */
+.font-logo {
+  font-family: var(--font-logo);
+}
+
+.font-hero {
+  font-family: var(--font-hero);
+}
+
+.font-subheading {
+  font-family: var(--font-subheading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-typewriter {
+  font-family: var(--font-typewriter);
+}
+
+.font-accent {
+  font-family: var(--font-accent);
+}
+
+/* Color utility classes */
+.bg-bg { background-color: var(--color-bg); }
+.bg-ink { background-color: var(--color-ink); }
+.bg-mid { background-color: var(--color-mid); }
+.bg-ghost { background-color: var(--color-ghost); }
+.bg-paper { background-color: var(--color-paper); }
+
+.text-ink { color: var(--color-ink); }
+.text-mid { color: var(--color-mid); }
+.text-bg { color: var(--color-bg); }
+
+.border-ink { border-color: var(--color-ink); }
+.border-ghost { border-color: var(--color-ghost); }
+
+/* Editorial thin rule */
+.rule {
+  border: none;
+  border-top: 1px solid var(--color-ink);
+}
+
+.rule-dashed {
+  border: none;
+  border-top: 1px dashed var(--color-mid);
+}
+
+/* ========================================
+   LANDING PAGE STYLES
+   Black & White Editorial Aesthetic
+======================================== */
+
+/* Landing page background - off-white */
+.landing-bg {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+}
+
+/* Landing page dark variant */
+.landing-bg-dark {
+  background-color: var(--color-ink);
+  min-height: 100vh;
+}
+
+/* Editorial card for landing */
+.landing-card {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  box-shadow: var(--shadow-card);
+}
+
+.landing-card-paper {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Editorial card with full borders - complete bottom edge */
+.landing-card-bordered {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.landing-card-bordered::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--color-ink);
+}
+
+/* Primary button for landing - solid ink */
+.btn-landing {
+  background-color: var(--color-ink);
+  color: var(--color-bg);
+  border: 1px solid var(--color-ink);
+  font-family: var(--font-typewriter);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .btn-landing {
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+  }
+}
+
+.btn-landing:hover {
+  background-color: var(--color-accent);
+  box-shadow: inset 0 0 0 2px var(--color-bg);
+  transform: scale(1.02);
+}
+
+.btn-landing:active {
+  transform: scale(0.98);
+}
+
+.btn-landing-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 640px) {
+  .btn-landing-lg {
+    padding: 1rem 2.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Outline button for landing */
+.btn-landing-outline {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  font-family: var(--font-typewriter);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .btn-landing-outline {
+    padding: 0.875rem 2rem;
+    font-size: 0.875rem;
+  }
+}
+
+.btn-landing-outline:hover {
+  background-color: var(--color-ghost);
+}
+
+/* Dark section buttons */
+.btn-landing-light {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  border: 1px solid var(--color-bg);
+  font-family: var(--font-typewriter);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.875rem 2rem;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-landing-light:hover {
+  background-color: var(--color-paper);
+  transform: scale(1.02);
+}
+
+.btn-landing-outline-light {
+  background: transparent;
+  color: var(--color-bg);
+  border: 1px solid var(--color-bg);
+  font-family: var(--font-typewriter);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.875rem 2rem;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-landing-outline-light:hover {
+  background-color: rgba(250, 250, 248, 0.1);
+}
+
+/* Landing page animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(13, 13, 13, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(13, 13, 13, 0.2);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes typewriter-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes rotate-text {
+  0%, 20% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  25%, 45% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50%, 100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s ease-out forwards;
+}
+
+/* Staggered animation delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+
+/* Photo strip styling for landing page */
+.photo-strip {
+  background: white;
+  border: 1px solid var(--color-ink);
+  padding: 10px;
+  box-shadow: var(--shadow-lift);
+}
+
+.photo-strip-slot {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(13, 13, 13, 0) 0%,
+    rgba(13, 13, 13, 0.05) 50%,
+    rgba(13, 13, 13, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Social proof badge - B&W */
+.social-proof-badge {
+  background-color: var(--color-ghost);
+  border: 1px solid var(--color-ink);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.65rem;
+  color: var(--color-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (min-width: 640px) {
+  .social-proof-badge {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Dark section social proof badge */
+.social-proof-badge-dark {
+  background-color: transparent;
+  border: 1px solid var(--color-bg);
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.75rem;
+  color: var(--color-bg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive container for landing */
+.landing-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 480px) {
+  .landing-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .landing-container {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-container {
+    padding: 0 4rem;
+  }
+}
+
+/* Disable grain overlay for landing page */
+.landing-page body::before {
+  display: none;
+}
+
+/* CTA Button with inner rule inset detail */
+.btn-cta-light {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  border: 1px solid var(--color-bg);
+  font-family: var(--font-typewriter);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-block;
+}
+
+@media (min-width: 640px) {
+  .btn-cta-light {
+    padding: 0.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+.btn-cta-light:hover {
+  background-color: var(--color-paper);
+  transform: scale(1.02);
+}
+
+.btn-cta-light:active {
+  transform: scale(0.98);
+}
+
+.btn-cta-inner {
+  display: block;
+  padding: 0.625rem 1.5rem;
+  border: 1px solid var(--color-ink);
+}
+
+@media (min-width: 640px) {
+  .btn-cta-inner {
+    padding: 0.875rem 2.5rem;
+  }
+}
+
+/* CTA Section decorative brackets - 2px solid #5C5C5C */
+.cta-bracket {
+  border-color: #5C5C5C;
+  border-style: solid;
+  border-width: 0;
+}
+
+.cta-bracket-tl {
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.cta-bracket-tr {
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.cta-bracket-bl {
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+
+.cta-bracket-br {
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}

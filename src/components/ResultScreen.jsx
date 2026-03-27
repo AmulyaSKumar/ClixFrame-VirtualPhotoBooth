@@ -1,0 +1,382 @@
+import React, { useRef, useState, useCallback } from 'react'
+import StickerPanel from './StickerPanel'
+import Logo from './Logo'
+
+function ResultScreen({
+  photos = [],
+  onRetake,
+  selectedTemplate = null,
+}) {
+  const stripRef = useRef(null)
+  const stripSlots = photos.length > 0 ? photos : Array.from({ length: 4 }, (_, index) => `Photo ${index + 1}`)
+  const [stickers, setStickers] = useState([])
+  const [activeStickerId, setActiveStickerId] = useState(null)
+  const [selectedFilter, setSelectedFilter] = useState('None')
+  const [frameColor, setFrameColor] = useState('white')
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const layout = selectedTemplate?.layout || '4x1'
+
+  const filters = [
+    { name: 'None', style: 'none' },
+    { name: 'B&W', style: 'grayscale(100%)' },
+    { name: 'Sepia', style: 'sepia(90%)' },
+    { name: 'Vivid', style: 'saturate(1.4) contrast(1.1)' },
+  ]
+
+  const frameColors = [
+    { value: 'white', textColor: '#0D0D0D' },
+    { value: '#0D0D0D', textColor: '#FAFAF8' },
+    { value: '#F5F0E6', textColor: '#0D0D0D' },
+    { value: '#FFE4EC', textColor: '#0D0D0D' },
+    { value: '#E6E6FA', textColor: '#0D0D0D' },
+  ]
+
+  const currentFrameColor = frameColors.find(c => c.value === frameColor)
+  const currentFilter = filters.find(f => f.name === selectedFilter)
+
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+
+  const handleAddSticker = (emoji) => {
+    const newSticker = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      emoji,
+      x: 60,
+      y: 80,
+      size: 32,
+    }
+    setStickers((prev) => [...prev, newSticker])
+    setActiveStickerId(newSticker.id)
+  }
+
+  const handleStickerDragStart = (event, stickerId) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const stripBounds = stripRef.current?.getBoundingClientRect()
+    if (!stripBounds) return
+
+    const targetSticker = stickers.find((item) => item.id === stickerId)
+    if (!targetSticker) return
+
+    setActiveStickerId(stickerId)
+
+    const pointerOffsetX = event.clientX - stripBounds.left - targetSticker.x
+    const pointerOffsetY = event.clientY - stripBounds.top - targetSticker.y
+
+    const handlePointerMove = (moveEvent) => {
+      setStickers((prev) =>
+        prev.map((item) => {
+          if (item.id !== stickerId) return item
+          const maxX = stripBounds.width - item.size
+          const maxY = stripBounds.height - item.size
+          const nextX = clamp(moveEvent.clientX - stripBounds.left - pointerOffsetX, 0, maxX)
+          const nextY = clamp(moveEvent.clientY - stripBounds.top - pointerOffsetY, 0, maxY)
+          return { ...item, x: nextX, y: nextY }
+        })
+      )
+    }
+
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+  }
+
+  const handleDeleteSticker = (stickerId) => {
+    setStickers((prev) => prev.filter((s) => s.id !== stickerId))
+    setActiveStickerId(null)
+  }
+
+  const getCanvasDimensions = () => {
+    const padding = 20
+    const headerHeight = 50
+    const photoGap = 6
+
+    if (layout === '4x1') {
+      const stripWidth = 440
+      const photoWidth = stripWidth - (padding * 2)
+      const photoHeight = photoWidth * 0.75
+      const stripHeight = headerHeight + (photoHeight * 4) + (photoGap * 3) + (padding * 2)
+      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
+    } else if (layout === '1x4') {
+      const stripHeight = 260
+      const photoHeight = stripHeight - headerHeight - (padding * 2)
+      const photoWidth = photoHeight * 0.75
+      const stripWidth = (photoWidth * 4) + (photoGap * 3) + (padding * 2)
+      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
+    } else {
+      const stripWidth = 500
+      const photoWidth = (stripWidth - (padding * 2) - photoGap) / 2
+      const photoHeight = photoWidth * 0.75
+      const stripHeight = headerHeight + (photoHeight * 2) + photoGap + (padding * 2)
+      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
+    }
+  }
+
+  const getPhotoPosition = (index, dims) => {
+    const { photoWidth, photoHeight, padding, headerHeight, photoGap } = dims
+
+    if (layout === '4x1') {
+      return { x: padding, y: headerHeight + padding + 10 + (index * (photoHeight + photoGap)) }
+    } else if (layout === '1x4') {
+      return { x: padding + (index * (photoWidth + photoGap)), y: headerHeight + padding }
+    } else {
+      const row = Math.floor(index / 2)
+      const col = index % 2
+      return {
+        x: padding + (col * (photoWidth + photoGap)),
+        y: headerHeight + padding + 10 + (row * (photoHeight + photoGap))
+      }
+    }
+  }
+
+  const handleDownload = useCallback(async () => {
+    if (photos.length === 0) return
+    setIsDownloading(true)
+
+    try {
+      const dims = getCanvasDimensions()
+      const { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight } = dims
+
+      const canvas = document.createElement('canvas')
+      canvas.width = stripWidth
+      canvas.height = stripHeight
+      const ctx = canvas.getContext('2d')
+
+      ctx.fillStyle = frameColor
+      ctx.fillRect(0, 0, stripWidth, stripHeight)
+
+      const textColor = frameColor === '#0D0D0D' ? '#FAFAF8' : '#0D0D0D'
+      const borderColor = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
+
+      ctx.fillStyle = textColor
+      ctx.font = 'bold 24px "Playfair Display", serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('ClixFrame', stripWidth / 2, padding + 30)
+
+      ctx.strokeStyle = borderColor
+      ctx.setLineDash([4, 4])
+      ctx.beginPath()
+      ctx.moveTo(padding, headerHeight + padding)
+      ctx.lineTo(stripWidth - padding, headerHeight + padding)
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      const photoPromises = photos.map((photoSrc, index) => {
+        return new Promise((resolve) => {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            const pos = getPhotoPosition(index, dims)
+            const tempCanvas = document.createElement('canvas')
+            tempCanvas.width = photoWidth
+            tempCanvas.height = photoHeight
+            const tempCtx = tempCanvas.getContext('2d')
+
+            if (selectedFilter === 'B&W') tempCtx.filter = 'grayscale(100%)'
+            else if (selectedFilter === 'Sepia') tempCtx.filter = 'sepia(90%)'
+            else if (selectedFilter === 'Vivid') tempCtx.filter = 'saturate(1.4) contrast(1.1)'
+
+            const imgAspect = img.width / img.height
+            const slotAspect = photoWidth / photoHeight
+            let sx, sy, sw, sh
+
+            if (imgAspect > slotAspect) {
+              sh = img.height
+              sw = sh * slotAspect
+              sx = (img.width - sw) / 2
+              sy = 0
+            } else {
+              sw = img.width
+              sh = sw / slotAspect
+              sx = 0
+              sy = (img.height - sh) / 2
+            }
+
+            tempCtx.drawImage(img, sx, sy, sw, sh, 0, 0, photoWidth, photoHeight)
+            ctx.drawImage(tempCanvas, pos.x, pos.y)
+            resolve()
+          }
+          img.onerror = () => resolve()
+          img.src = photoSrc
+        })
+      })
+
+      await Promise.all(photoPromises)
+
+      const displayWidth = layout === '4x1' ? 220 : layout === '1x4' ? 400 : 280
+      const scaleX = stripWidth / displayWidth
+      const scaleY = stripHeight / (stripRef.current?.offsetHeight || stripHeight)
+
+      for (const sticker of stickers) {
+        ctx.font = `${sticker.size * scaleX}px serif`
+        ctx.textAlign = 'left'
+        ctx.fillText(sticker.emoji, sticker.x * scaleX, (sticker.y + sticker.size) * scaleY)
+      }
+
+      const link = document.createElement('a')
+      link.download = `clixframe-photostrip.png`
+      link.href = canvas.toDataURL('image/png', 1.0)
+      link.click()
+    } catch (error) {
+      console.error('Download failed:', error)
+    } finally {
+      setIsDownloading(false)
+    }
+  }, [photos, selectedFilter, frameColor, stickers, layout])
+
+  const borderStyle = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
+
+  const getStripClasses = () => {
+    if (layout === '4x1') return 'w-[150px] sm:w-[180px] md:w-[220px]'
+    else if (layout === '1x4') return 'w-[260px] sm:w-[320px] md:w-[400px] max-w-[90vw]'
+    else return 'w-[180px] sm:w-[220px] md:w-[280px]'
+  }
+
+  const getPhotoGridClasses = () => {
+    if (layout === '4x1') return 'flex flex-col gap-1.5'
+    else if (layout === '1x4') return 'flex flex-row gap-1.5'
+    else return 'grid grid-cols-2 gap-1.5'
+  }
+
+  const getPhotoClasses = () => {
+    if (layout === '1x4') return 'aspect-[3/4] flex-1'
+    else return 'aspect-[4/3]'
+  }
+
+  return (
+    <section className="min-h-screen w-full bg-bg flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between px-4 py-3 border-b border-ink/10">
+        <button
+          type="button"
+          className="font-typewriter text-xs text-mid hover:text-ink transition-colors"
+          onClick={onRetake}
+        >
+          &larr; Retake
+        </button>
+        <Logo size="sm" showText={true} />
+        <button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="font-typewriter text-xs bg-ink text-bg px-3 py-1.5 hover:bg-ink/80 transition-colors disabled:opacity-50"
+        >
+          {isDownloading ? 'Saving...' : 'Save'}
+        </button>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-auto">
+        {/* Photo Strip */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+          <div
+            ref={stripRef}
+            className={`relative p-2 sm:p-2.5 shadow-lg ${getStripClasses()}`}
+            style={{ backgroundColor: frameColor, transform: 'rotate(-1deg)' }}
+            onPointerDown={() => setActiveStickerId(null)}
+          >
+            <div
+              className="text-center pb-1 sm:pb-1.5 mb-1.5 sm:mb-2 border-b border-dashed"
+              style={{ borderColor: borderStyle }}
+            >
+              <span className="font-logo text-sm sm:text-lg tracking-wide" style={{ color: currentFrameColor?.textColor }}>
+                Clix<span className="font-accent">Frame</span>
+              </span>
+            </div>
+
+            <div className={getPhotoGridClasses()}>
+              {stripSlots.map((photo, index) => (
+                <div
+                  key={index}
+                  className={`${getPhotoClasses()} overflow-hidden bg-paper`}
+                  style={{ filter: currentFilter?.style }}
+                >
+                  {typeof photo === 'string' && photo.startsWith('data:') ? (
+                    <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="font-hero text-lg sm:text-xl text-mid">{['I', 'II', 'III', 'IV'][index]}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {stickers.map((sticker) => (
+              <div
+                key={sticker.id}
+                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-1 ring-ink' : ''}`}
+                style={{ left: sticker.x, top: sticker.y, width: sticker.size, height: sticker.size }}
+                onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
+              >
+                <span className="text-lg">{sticker.emoji}</span>
+                {activeStickerId === sticker.id && (
+                  <button
+                    onClick={() => handleDeleteSticker(sticker.id)}
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-ink text-bg text-[10px] flex items-center justify-center rounded-full"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Controls - Bottom bar on mobile, sidebar on desktop */}
+        <div className="w-full lg:w-80 bg-paper border-t lg:border-t-0 lg:border-l border-ink/10 p-4 space-y-5">
+          {/* Filters */}
+          <div>
+            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Filter</p>
+            <div className="flex gap-1">
+              {filters.map((filter) => (
+                <button
+                  key={filter.name}
+                  onClick={() => setSelectedFilter(filter.name)}
+                  className={`flex-1 py-1.5 text-xs font-typewriter transition-all ${
+                    selectedFilter === filter.name
+                      ? 'bg-ink text-bg'
+                      : 'bg-transparent text-ink hover:bg-ink/10'
+                  }`}
+                >
+                  {filter.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Frame Colors */}
+          <div>
+            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Frame</p>
+            <div className="flex gap-2">
+              {frameColors.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => setFrameColor(color.value)}
+                  className={`w-7 h-7 rounded-full border transition-all ${
+                    frameColor === color.value
+                      ? 'ring-2 ring-ink ring-offset-2 scale-110'
+                      : 'border-ink/20 hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Stickers */}
+          <div>
+            <p className="font-typewriter text-[10px] text-mid uppercase tracking-wider mb-2">Stickers</p>
+            <StickerPanel onSelect={handleAddSticker} />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default ResultScreen
