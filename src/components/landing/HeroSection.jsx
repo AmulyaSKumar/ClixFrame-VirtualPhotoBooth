@@ -13,7 +13,6 @@ function HeroSection({ onStartBooth }) {
   const [currentPhrase, setCurrentPhrase] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
 
-  // Rotate phrases
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPhrase((prev) => (prev + 1) % rotatingPhrases.length)
@@ -21,32 +20,27 @@ function HeroSection({ onStartBooth }) {
     return () => clearInterval(interval)
   }, [])
 
-  // Trigger animations on mount
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
   return (
     <section className="min-h-screen relative bg-bg">
-      {/* Content */}
       <div className="relative z-10 landing-container min-h-screen flex flex-col px-5 sm:px-6 lg:px-8">
-        {/* Navigation */}
+        {/* Navigation / Header */}
         <nav className="py-5 sm:py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Logo */}
-            <span className="font-logo text-2xl sm:text-2xl md:text-3xl text-ink font-bold tracking-tight">
-              Clix<span className="font-accent text-3xl sm:text-3xl md:text-4xl">frame</span>
-            </span>
-          </div>
+          <span className="font-logo text-2xl sm:text-2xl md:text-3xl text-ink font-bold tracking-tight">
+            Clix<span className="font-accent text-3xl sm:text-3xl md:text-4xl">frame</span>
+          </span>
         </nav>
 
-        {/* Hero Content */}
-        <div className="flex-1 flex items-center pt-8 pb-12 sm:pt-0 sm:pb-0">
-          <div className="w-full grid lg:grid-cols-2 gap-8 sm:gap-14 lg:gap-20 items-center">
-            {/* Left: Text Content - appears FIRST on mobile */}
-            <div className={`space-y-5 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
+        {/* Hero Content - Added more top margin on mobile */}
+        <div className="flex-1 flex items-center mt-6 sm:mt-0">
+          <div className="w-full grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-center">
+            {/* Left: Text Content */}
+            <div className={`space-y-6 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
               {/* Main Headline */}
-              <div className="space-y-3 sm:space-y-5">
+              <div className="space-y-4 sm:space-y-5">
                 <h1 className="font-hero text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl text-ink font-bold leading-[1.1] tracking-tight">
                   Strike a Pose.
                   <br />
@@ -113,8 +107,8 @@ function HeroSection({ onStartBooth }) {
               </div>
             </div>
 
-            {/* Right: Demo Preview - appears SECOND on mobile */}
-            <div className={`flex justify-center order-2 mt-2 sm:mt-0 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
+            {/* Right: Demo Preview */}
+            <div className={`flex justify-center order-2 mt-4 sm:mt-0 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
               <DemoPreview className="w-40 sm:w-52 md:w-60 lg:w-72" />
             </div>
           </div>
