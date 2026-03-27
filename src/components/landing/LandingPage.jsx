@@ -9,20 +9,20 @@ function LandingPage({ onStartBooth }) {
 
       {/* Features Section */}
       <section id="features" className="py-16 sm:py-24 md:py-28 lg:py-32 bg-paper">
-        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center px-5 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20 max-w-3xl">
             <p className="font-accent text-xl sm:text-2xl text-ink mb-3">Why choose us</p>
             <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl text-ink font-bold leading-tight tracking-tight mb-4">
               Simple. Beautiful. Memorable.
             </h2>
-            <p className="font-body text-mid text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="font-body text-mid text-base sm:text-lg leading-relaxed">
               Create stunning photo booth experiences in seconds. No downloads, no signups, just pure fun.
             </p>
           </div>
 
           {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl w-full">
             {/* Feature 1 */}
             <div className="bg-bg rounded-2xl p-6 sm:p-8 text-center">
               <div className="w-14 h-14 bg-ghost/50 rounded-2xl flex items-center justify-center mx-auto mb-5">
@@ -71,29 +71,27 @@ function LandingPage({ onStartBooth }) {
 
       {/* CTA Section */}
       <section className="py-20 sm:py-28 md:py-32 lg:py-40 bg-ink">
-        <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-center text-center">
-            <p className="font-accent text-xl sm:text-2xl text-bg/80 mb-4">Ready?</p>
+        <div className="flex flex-col items-center justify-center px-5 sm:px-6 lg:px-8 text-center">
+          <p className="font-accent text-xl sm:text-2xl text-bg/80 mb-4">Ready?</p>
 
-            <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl text-bg font-bold leading-tight tracking-tight mb-5">
-              Create Memories That Last
-            </h2>
+          <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl text-bg font-bold leading-tight tracking-tight mb-5">
+            Create Memories That Last
+          </h2>
 
-            <p className="font-body text-bg/70 text-base sm:text-lg max-w-lg mx-auto leading-relaxed mb-8">
-              No signup required. Just open the booth and start capturing moments that last forever.
-            </p>
+          <p className="font-body text-bg/70 text-base sm:text-lg max-w-lg leading-relaxed mb-8">
+            No signup required. Just open the booth and start capturing moments that last forever.
+          </p>
 
-            <button
-              onClick={onStartBooth}
-              className="font-subheading text-base sm:text-lg font-semibold bg-bg text-ink px-8 sm:px-12 py-3.5 sm:py-4 rounded-full hover:bg-bg/90 transition-all hover:scale-[1.02] shadow-lg mb-5"
-            >
-              Start the Booth
-            </button>
+          <button
+            onClick={onStartBooth}
+            className="font-subheading text-base sm:text-lg font-semibold bg-bg text-ink px-8 sm:px-12 py-3.5 sm:py-4 rounded-full hover:bg-bg/90 transition-all hover:scale-[1.02] shadow-lg mb-5"
+          >
+            Start the Booth
+          </button>
 
-            <p className="font-body text-xs sm:text-sm text-bg/50 tracking-wide">
-              No signup · Free · Instant
-            </p>
-          </div>
+          <p className="font-body text-xs sm:text-sm text-bg/50 tracking-wide">
+            No signup · Free · Instant
+          </p>
         </div>
       </section>
     </div>
