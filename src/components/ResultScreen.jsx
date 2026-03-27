@@ -229,12 +229,12 @@ function ResultScreen({
     }
   }, [photos, selectedFilter, frameColor, stickers, layout])
 
-  const borderStyle = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
+  const borderStyle = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.15)'
 
   const getStripClasses = () => {
-    if (layout === '4x1') return 'w-[140px] sm:w-[170px] md:w-[200px]'
-    else if (layout === '1x4') return 'w-[260px] sm:w-[320px] md:w-[380px] max-w-[90vw]'
-    else return 'w-[170px] sm:w-[200px] md:w-[250px]'
+    if (layout === '4x1') return 'w-[140px] sm:w-[160px] md:w-[180px]'
+    else if (layout === '1x4') return 'w-[260px] sm:w-[300px] md:w-[360px] max-w-[85vw]'
+    else return 'w-[160px] sm:w-[190px] md:w-[220px]'
   }
 
   const getPhotoGridClasses = () => {
@@ -249,12 +249,12 @@ function ResultScreen({
   }
 
   return (
-    <section className="min-h-screen w-full bg-ink flex flex-col">
+    <section className="min-h-screen w-full bg-bg flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-bg/10">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-ink/10">
         <button
           type="button"
-          className="flex items-center gap-2 text-bg/60 hover:text-bg transition-colors"
+          className="flex items-center gap-2 text-mid hover:text-ink transition-colors"
           onClick={onRetake}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,28 +262,28 @@ function ResultScreen({
           </svg>
           <span className="font-body text-sm hidden sm:inline">Retake</span>
         </button>
-        <div className="font-logo text-xl font-bold tracking-tight text-bg">
+        <div className="font-logo text-xl font-bold tracking-tight text-ink">
           Clix<span className="font-accent text-2xl">frame</span>
         </div>
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="font-subheading text-sm font-semibold bg-bg text-ink px-4 sm:px-6 py-2 rounded-full hover:bg-bg/90 transition-all disabled:opacity-50 flex items-center gap-2"
+          className="font-subheading text-sm font-semibold bg-ink text-bg px-4 sm:px-6 py-2 rounded-full hover:bg-ink/90 transition-all disabled:opacity-50 flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          <span>{isDownloading ? 'Saving...' : 'Save'}</span>
+          <span className="hidden sm:inline">{isDownloading ? 'Saving...' : 'Save'}</span>
         </button>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-auto">
         {/* Photo Strip Area */}
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-ink">
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-paper">
           <div
             ref={stripRef}
-            className={`relative p-3 sm:p-4 rounded-xl shadow-2xl ${getStripClasses()}`}
+            className={`relative p-3 sm:p-4 rounded-lg shadow-xl border border-ink/5 ${getStripClasses()}`}
             style={{ backgroundColor: frameColor }}
             onPointerDown={() => setActiveStickerId(null)}
           >
@@ -292,8 +292,8 @@ function ResultScreen({
               className="text-center pb-2 mb-2 border-b border-dashed"
               style={{ borderColor: borderStyle }}
             >
-              <span className="font-logo text-sm sm:text-base font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
-                Clix<span className="font-accent text-base sm:text-lg">frame</span>
+              <span className="font-logo text-xs sm:text-sm font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
+                Clix<span className="font-accent text-sm sm:text-base">frame</span>
               </span>
             </div>
 
@@ -302,14 +302,14 @@ function ResultScreen({
               {stripSlots.map((photo, index) => (
                 <div
                   key={index}
-                  className={`${getPhotoClasses()} overflow-hidden bg-gray-200 rounded`}
+                  className={`${getPhotoClasses()} overflow-hidden bg-ghost rounded`}
                   style={{ filter: currentFilter?.style }}
                 >
                   {typeof photo === 'string' && photo.startsWith('data:') ? (
                     <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                      <span className="font-hero text-lg font-bold text-gray-400">{index + 1}</span>
+                    <div className="w-full h-full flex items-center justify-center bg-ghost">
+                      <span className="font-hero text-base font-bold text-mid/40">{index + 1}</span>
                     </div>
                   )}
                 </div>
@@ -320,7 +320,7 @@ function ResultScreen({
             {stickers.map((sticker) => (
               <div
                 key={sticker.id}
-                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-2 ring-blue-500 rounded' : ''}`}
+                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-2 ring-ink/50 rounded' : ''}`}
                 style={{ left: sticker.x, top: sticker.y, width: sticker.size, height: sticker.size }}
                 onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
               >
@@ -328,7 +328,7 @@ function ResultScreen({
                 {activeStickerId === sticker.id && (
                   <button
                     onClick={() => handleDeleteSticker(sticker.id)}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full shadow"
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-ink text-bg text-xs flex items-center justify-center rounded-full shadow"
                   >
                     ×
                   </button>
@@ -339,9 +339,9 @@ function ResultScreen({
         </div>
 
         {/* Controls Panel */}
-        <div className="w-full lg:w-[340px] bg-bg flex flex-col">
+        <div className="w-full lg:w-[320px] bg-bg border-t lg:border-t-0 lg:border-l border-ink/10 flex flex-col">
           {/* Tab Navigation */}
-          <div className="flex border-b border-ink/10">
+          <div className="flex">
             {[
               { id: 'filter', label: 'Filter' },
               { id: 'frame', label: 'Frame' },
@@ -350,10 +350,10 @@ function ResultScreen({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 sm:py-4 font-subheading text-sm font-medium transition-all ${
+                className={`flex-1 py-3 font-subheading text-sm font-medium transition-all border-b-2 ${
                   activeTab === tab.id
-                    ? 'text-ink border-b-2 border-ink'
-                    : 'text-mid hover:text-ink'
+                    ? 'text-ink border-ink'
+                    : 'text-mid border-transparent hover:text-ink'
                 }`}
               >
                 {tab.label}
@@ -362,26 +362,21 @@ function ResultScreen({
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 p-4 sm:p-6 overflow-auto">
+          <div className="flex-1 p-4 overflow-auto">
             {/* Filter Tab */}
             {activeTab === 'filter' && (
-              <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
                 {filters.map((filter) => (
                   <button
                     key={filter.name}
                     onClick={() => setSelectedFilter(filter.name)}
-                    className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-xl transition-all ${
+                    className={`p-3 rounded-xl text-center transition-all ${
                       selectedFilter === filter.name
                         ? 'bg-ink text-bg'
-                        : 'bg-ghost/50 text-ink hover:bg-ghost'
+                        : 'bg-paper text-ink hover:bg-ghost'
                     }`}
                   >
-                    <span className="font-body text-sm sm:text-base">{filter.name}</span>
-                    {selectedFilter === filter.name && (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
+                    <span className="font-body text-sm">{filter.name}</span>
                   </button>
                 ))}
               </div>
@@ -389,28 +384,19 @@ function ResultScreen({
 
             {/* Frame Tab */}
             {activeTab === 'frame' && (
-              <div className="space-y-3">
+              <div className="grid grid-cols-5 gap-2">
                 {frameColors.map((color) => (
                   <button
                     key={color.value}
                     onClick={() => setFrameColor(color.value)}
-                    className={`w-full flex items-center gap-4 p-3 sm:p-4 rounded-xl transition-all ${
+                    className={`aspect-square rounded-xl border-2 transition-all ${
                       frameColor === color.value
-                        ? 'bg-ink text-bg'
-                        : 'bg-ghost/50 text-ink hover:bg-ghost'
+                        ? 'border-ink scale-110 shadow-md'
+                        : 'border-ink/10 hover:border-ink/30'
                     }`}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full border-2 border-ink/20 flex-shrink-0"
-                      style={{ backgroundColor: color.value }}
-                    />
-                    <span className="font-body text-sm sm:text-base">{color.label}</span>
-                    {frameColor === color.value && (
-                      <svg className="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
+                    style={{ backgroundColor: color.value }}
+                    title={color.label}
+                  />
                 ))}
               </div>
             )}
@@ -418,7 +404,7 @@ function ResultScreen({
             {/* Stickers Tab */}
             {activeTab === 'sticker' && (
               <div>
-                <p className="font-body text-sm text-mid mb-4">Tap to add, drag to move</p>
+                <p className="font-body text-xs text-mid mb-3">Tap to add, drag to move</p>
                 <StickerPanel onSelect={handleAddSticker} />
               </div>
             )}
