@@ -1,5 +1,15 @@
 import React, { useRef, useState, useCallback } from 'react'
-import StickerPanel from './StickerPanel'
+
+// Minimal sticker set (4-6 stickers)
+const stickers = ['⭐', '❤️', '✨', '🎉', '😎', '💕']
+
+// B&W compliant frame options
+const frameOptions = [
+  { id: 'none', name: 'None', color: 'transparent', border: true },
+  { id: 'white', name: 'Border', color: '#ffffff', border: true },
+  { id: 'newspaper', name: 'Newspaper', color: '#f5f5f0', border: true },
+  { id: 'polaroid', name: 'Polaroid', color: '#ffffff', border: false, padding: true },
+]
 
 function ResultScreen({
   photos = [],
@@ -8,12 +18,11 @@ function ResultScreen({
 }) {
   const stripRef = useRef(null)
   const stripSlots = photos.length > 0 ? photos : Array.from({ length: 4 }, (_, index) => `Photo ${index + 1}`)
-  const [stickers, setStickers] = useState([])
+  const [placedStickers, setPlacedStickers] = useState([])
   const [activeStickerId, setActiveStickerId] = useState(null)
   const [selectedFilter, setSelectedFilter] = useState('None')
-  const [frameColor, setFrameColor] = useState('white')
+  const [selectedFrame, setSelectedFrame] = useState('white')
   const [isDownloading, setIsDownloading] = useState(false)
-  const [activeTab, setActiveTab] = useState('filter')
 
   const layout = selectedTemplate?.layout || '4x1'
 
@@ -24,16 +33,8 @@ function ResultScreen({
     { name: 'Vivid', style: 'saturate(1.4) contrast(1.1)' },
   ]
 
-  const frameColors = [
-    { value: 'white', label: 'White', textColor: '#0D0D0D' },
-    { value: '#0D0D0D', label: 'Black', textColor: '#FAFAF8' },
-    { value: '#F5F0E6', label: 'Cream', textColor: '#0D0D0D' },
-    { value: '#FFE4EC', label: 'Pink', textColor: '#0D0D0D' },
-    { value: '#E6E6FA', label: 'Lavender', textColor: '#0D0D0D' },
-  ]
-
-  const currentFrameColor = frameColors.find(c => c.value === frameColor)
   const currentFilter = filters.find(f => f.name === selectedFilter)
+  const currentFrame = frameOptions.find(f => f.id === selectedFrame)
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
@@ -45,7 +46,7 @@ function ResultScreen({
       y: 80,
       size: 32,
     }
-    setStickers((prev) => [...prev, newSticker])
+    setPlacedStickers((prev) => [...prev, newSticker])
     setActiveStickerId(newSticker.id)
   }
 
@@ -56,7 +57,7 @@ function ResultScreen({
     const stripBounds = stripRef.current?.getBoundingClientRect()
     if (!stripBounds) return
 
-    const targetSticker = stickers.find((item) => item.id === stickerId)
+    const targetSticker = placedStickers.find((item) => item.id === stickerId)
     if (!targetSticker) return
 
     setActiveStickerId(stickerId)
@@ -65,7 +66,7 @@ function ResultScreen({
     const pointerOffsetY = event.clientY - stripBounds.top - targetSticker.y
 
     const handlePointerMove = (moveEvent) => {
-      setStickers((prev) =>
+      setPlacedStickers((prev) =>
         prev.map((item) => {
           if (item.id !== stickerId) return item
           const maxX = stripBounds.width - item.size
@@ -87,7 +88,7 @@ function ResultScreen({
   }
 
   const handleDeleteSticker = (stickerId) => {
-    setStickers((prev) => prev.filter((s) => s.id !== stickerId))
+    setPlacedStickers((prev) => prev.filter((s) => s.id !== stickerId))
     setActiveStickerId(null)
   }
 
@@ -147,18 +148,16 @@ function ResultScreen({
       canvas.height = stripHeight
       const ctx = canvas.getContext('2d')
 
-      ctx.fillStyle = frameColor
+      const frameColor = currentFrame?.color || '#ffffff'
+      ctx.fillStyle = frameColor === 'transparent' ? '#ffffff' : frameColor
       ctx.fillRect(0, 0, stripWidth, stripHeight)
 
-      const textColor = frameColor === '#0D0D0D' ? '#FAFAF8' : '#0D0D0D'
-      const borderColor = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.2)'
-
-      ctx.fillStyle = textColor
-      ctx.font = 'bold 24px "Syne", sans-serif'
+      ctx.fillStyle = '#0a0a0a'
+      ctx.font = '500 24px system-ui, sans-serif'
       ctx.textAlign = 'center'
       ctx.fillText('Clixframe', stripWidth / 2, padding + 30)
 
-      ctx.strokeStyle = borderColor
+      ctx.strokeStyle = 'rgba(10, 10, 10, 0.15)'
       ctx.setLineDash([4, 4])
       ctx.beginPath()
       ctx.moveTo(padding, headerHeight + padding)
@@ -212,7 +211,7 @@ function ResultScreen({
       const scaleX = stripWidth / displayWidth
       const scaleY = stripHeight / (stripRef.current?.offsetHeight || stripHeight)
 
-      for (const sticker of stickers) {
+      for (const sticker of placedStickers) {
         ctx.font = `${sticker.size * scaleX}px serif`
         ctx.textAlign = 'left'
         ctx.fillText(sticker.emoji, sticker.x * scaleX, (sticker.y + sticker.size) * scaleY)
@@ -227,108 +226,294 @@ function ResultScreen({
     } finally {
       setIsDownloading(false)
     }
-  }, [photos, selectedFilter, frameColor, stickers, layout])
-
-  const borderStyle = frameColor === '#0D0D0D' ? 'rgba(250, 250, 248, 0.2)' : 'rgba(13, 13, 13, 0.15)'
+  }, [photos, selectedFilter, currentFrame, placedStickers, layout])
 
   const getStripClasses = () => {
-    if (layout === '4x1') return 'w-[140px] sm:w-[160px] md:w-[180px]'
-    else if (layout === '1x4') return 'w-[260px] sm:w-[300px] md:w-[360px] max-w-[85vw]'
-    else return 'w-[160px] sm:w-[190px] md:w-[220px]'
+    if (layout === '4x1') return { width: '180px', maxWidth: '220px' }
+    else if (layout === '1x4') return { width: '320px', maxWidth: '400px' }
+    else return { width: '200px', maxWidth: '280px' }
   }
 
-  const getPhotoGridClasses = () => {
-    if (layout === '4x1') return 'flex flex-col gap-1.5'
-    else if (layout === '1x4') return 'flex flex-row gap-1.5'
-    else return 'grid grid-cols-2 gap-1.5'
+  const getPhotoGridStyles = () => {
+    if (layout === '4x1') return { display: 'flex', flexDirection: 'column', gap: '6px' }
+    else if (layout === '1x4') return { display: 'flex', flexDirection: 'row', gap: '6px' }
+    else return { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }
   }
 
-  const getPhotoClasses = () => {
-    if (layout === '1x4') return 'aspect-[3/4] flex-1'
-    else return 'aspect-[4/3]'
+  const getPhotoStyles = () => {
+    if (layout === '1x4') return { aspectRatio: '3 / 4', flex: 1 }
+    else return { aspectRatio: '4 / 3' }
   }
+
+  const stripDimensions = getStripClasses()
+
+  // Section label component
+  const SectionLabel = ({ children }) => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '12px',
+      }}
+    >
+      <span
+        style={{
+          fontSize: '11px',
+          letterSpacing: '0.13em',
+          textTransform: 'uppercase',
+          color: '#aaa',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </span>
+      <div
+        style={{
+          flex: 1,
+          height: '0.5px',
+          backgroundColor: '#ddd',
+        }}
+      />
+    </div>
+  )
 
   return (
-    <section className="min-h-screen w-full bg-bg flex flex-col">
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        backgroundColor: '#f7f7f5',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* Header */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-ink/10">
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px clamp(1.5rem, 5vw, 3rem)',
+          borderBottom: '1px solid #e8e8e8',
+          backgroundColor: '#fff',
+        }}
+      >
+        {/* Retake Button */}
         <button
-          type="button"
-          className="flex items-center gap-2 text-mid hover:text-ink transition-colors"
           onClick={onRetake}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#888',
+            fontSize: '13px',
+            padding: '4px',
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span className="font-body text-sm hidden sm:inline">Retake</span>
+          <span>Retake</span>
         </button>
-        <div className="font-logo text-xl font-bold tracking-tight text-ink">
-          Clix<span className="font-accent text-2xl">frame</span>
-        </div>
+
+        {/* Logo */}
+        <span
+          style={{
+            fontSize: '18px',
+            fontWeight: 500,
+            color: '#0a0a0a',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Clix
+          <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
+            frame
+          </span>
+        </span>
+
+        {/* Save Button */}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="font-subheading text-sm font-semibold bg-ink text-bg px-4 sm:px-6 py-2 rounded-full hover:bg-ink/90 transition-all disabled:opacity-50 flex items-center gap-2"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#0a0a0a',
+            color: '#fff',
+            padding: '8px 18px',
+            borderRadius: '4px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 500,
+            opacity: isDownloading ? 0.5 : 1,
+          }}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          <span>{isDownloading ? 'Saving...' : 'Save'}</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
           </svg>
-          <span className="hidden sm:inline">{isDownloading ? 'Saving...' : 'Save'}</span>
         </button>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-auto">
-        {/* Photo Strip Area */}
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-paper">
+      {/* Main Content - Split Layout */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'row',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Left Column - Photo Strip (60%) */}
+        <div
+          style={{
+            flex: '0 0 60%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '32px',
+            backgroundColor: '#f7f7f5',
+          }}
+        >
+          {/* Strip Container Card */}
           <div
             ref={stripRef}
-            className={`relative p-3 sm:p-4 rounded-lg shadow-xl border border-ink/5 ${getStripClasses()}`}
-            style={{ backgroundColor: frameColor }}
+            style={{
+              position: 'relative',
+              backgroundColor: currentFrame?.color || '#ffffff',
+              border: '1px solid #e8e8e8',
+              borderRadius: '12px',
+              padding: currentFrame?.padding ? '20px 12px 32px' : '16px',
+              ...stripDimensions,
+            }}
             onPointerDown={() => setActiveStickerId(null)}
           >
             {/* Logo */}
             <div
-              className="text-center pb-2 mb-2 border-b border-dashed"
-              style={{ borderColor: borderStyle }}
+              style={{
+                textAlign: 'center',
+                paddingBottom: '8px',
+                marginBottom: '8px',
+                borderBottom: '1px dashed #e8e8e8',
+              }}
             >
-              <span className="font-logo text-xs sm:text-sm font-bold tracking-tight" style={{ color: currentFrameColor?.textColor }}>
-                Clix<span className="font-accent text-sm sm:text-base">frame</span>
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: '#0a0a0a',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                Clix
+                <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
+                  frame
+                </span>
               </span>
             </div>
 
             {/* Photos Grid */}
-            <div className={getPhotoGridClasses()}>
+            <div style={getPhotoGridStyles()}>
               {stripSlots.map((photo, index) => (
                 <div
                   key={index}
-                  className={`${getPhotoClasses()} overflow-hidden bg-ghost rounded`}
-                  style={{ filter: currentFilter?.style }}
+                  style={{
+                    ...getPhotoStyles(),
+                    overflow: 'hidden',
+                    backgroundColor: '#e8e8e8',
+                    borderRadius: '4px',
+                    filter: currentFilter?.style !== 'none' ? currentFilter?.style : 'none',
+                  }}
                 >
                   {typeof photo === 'string' && photo.startsWith('data:') ? (
-                    <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                    <img
+                      src={photo}
+                      alt={`Photo ${index + 1}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-ghost">
-                      <span className="font-hero text-base font-bold text-mid/40">{index + 1}</span>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#e8e8e8',
+                      }}
+                    >
+                      <span style={{ fontSize: '18px', fontWeight: 500, color: '#aaa' }}>
+                        {index + 1}
+                      </span>
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Stickers */}
-            {stickers.map((sticker) => (
+            {/* Placed Stickers */}
+            {placedStickers.map((sticker) => (
               <div
                 key={sticker.id}
-                className={`absolute cursor-grab active:cursor-grabbing select-none ${activeStickerId === sticker.id ? 'ring-2 ring-ink/50 rounded' : ''}`}
-                style={{ left: sticker.x, top: sticker.y, width: sticker.size, height: sticker.size }}
+                style={{
+                  position: 'absolute',
+                  left: sticker.x,
+                  top: sticker.y,
+                  width: sticker.size,
+                  height: sticker.size,
+                  cursor: 'grab',
+                  userSelect: 'none',
+                  outline: activeStickerId === sticker.id ? '2px solid #0a0a0a' : 'none',
+                  outlineOffset: '2px',
+                  borderRadius: '4px',
+                }}
                 onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
               >
-                <span className="text-xl">{sticker.emoji}</span>
+                <span style={{ fontSize: '24px' }}>{sticker.emoji}</span>
                 {activeStickerId === sticker.id && (
                   <button
                     onClick={() => handleDeleteSticker(sticker.id)}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-ink text-bg text-xs flex items-center justify-center rounded-full shadow"
+                    style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      width: '18px',
+                      height: '18px',
+                      backgroundColor: '#0a0a0a',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: 1,
+                    }}
                   >
                     ×
                   </button>
@@ -338,80 +523,138 @@ function ResultScreen({
           </div>
         </div>
 
-        {/* Controls Panel */}
-        <div className="w-full lg:w-[320px] bg-bg border-t lg:border-t-0 lg:border-l border-ink/10 flex flex-col">
-          {/* Tab Navigation */}
-          <div className="flex">
-            {[
-              { id: 'filter', label: 'Filter' },
-              { id: 'frame', label: 'Frame' },
-              { id: 'sticker', label: 'Stickers' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 font-subheading text-sm font-medium transition-all border-b-2 ${
-                  activeTab === tab.id
-                    ? 'text-ink border-ink'
-                    : 'text-mid border-transparent hover:text-ink'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+        {/* Right Column - Editing Panel (40%) */}
+        <div
+          style={{
+            flex: '0 0 40%',
+            borderLeft: '1px solid #e8e8e8',
+            backgroundColor: '#fff',
+            padding: '2rem 1.5rem',
+            overflowY: 'auto',
+          }}
+        >
+          {/* Filter Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <SectionLabel>Filter</SectionLabel>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '8px',
+              }}
+            >
+              {filters.map((filter) => (
+                <button
+                  key={filter.name}
+                  onClick={() => setSelectedFilter(filter.name)}
+                  style={{
+                    padding: '8px 16px',
+                    border: selectedFilter === filter.name ? '1px solid #0a0a0a' : '1px solid #e8e8e8',
+                    borderRadius: '99px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    backgroundColor: selectedFilter === filter.name ? '#0a0a0a' : '#fff',
+                    color: selectedFilter === filter.name ? '#fff' : '#555',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {filter.name}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Tab Content */}
-          <div className="flex-1 p-4 overflow-auto">
-            {/* Filter Tab */}
-            {activeTab === 'filter' && (
-              <div className="grid grid-cols-2 gap-2">
-                {filters.map((filter) => (
-                  <button
-                    key={filter.name}
-                    onClick={() => setSelectedFilter(filter.name)}
-                    className={`p-3 rounded-xl text-center transition-all ${
-                      selectedFilter === filter.name
-                        ? 'bg-ink text-bg'
-                        : 'bg-paper text-ink hover:bg-ghost'
-                    }`}
-                  >
-                    <span className="font-body text-sm">{filter.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Frame Tab */}
-            {activeTab === 'frame' && (
-              <div className="grid grid-cols-5 gap-2">
-                {frameColors.map((color) => (
-                  <button
-                    key={color.value}
-                    onClick={() => setFrameColor(color.value)}
-                    className={`aspect-square rounded-xl border-2 transition-all ${
-                      frameColor === color.value
-                        ? 'border-ink scale-110 shadow-md'
-                        : 'border-ink/10 hover:border-ink/30'
-                    }`}
-                    style={{ backgroundColor: color.value }}
-                    title={color.label}
+          {/* Frame Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <SectionLabel>Frame</SectionLabel>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '8px',
+              }}
+            >
+              {frameOptions.map((frame) => (
+                <button
+                  key={frame.id}
+                  onClick={() => setSelectedFrame(frame.id)}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1',
+                    maxWidth: '80px',
+                    border: selectedFrame === frame.id ? '2px solid #0a0a0a' : '1px solid #e8e8e8',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    backgroundColor: frame.color === 'transparent' ? '#f7f7f5' : frame.color,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    padding: '8px',
+                    transition: 'border-color 0.15s ease',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '24px',
+                      height: '32px',
+                      backgroundColor: '#ddd',
+                      borderRadius: '2px',
+                      border: frame.border ? '1px solid #bbb' : 'none',
+                    }}
                   />
-                ))}
-              </div>
-            )}
+                  <span style={{ fontSize: '11px', color: '#888' }}>{frame.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-            {/* Stickers Tab */}
-            {activeTab === 'sticker' && (
-              <div>
-                <p className="font-body text-xs text-mid mb-3">Tap to add, drag to move</p>
-                <StickerPanel onSelect={handleAddSticker} />
-              </div>
-            )}
+          {/* Stickers Section */}
+          <div>
+            <SectionLabel>Stickers</SectionLabel>
+            <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px' }}>
+              Tap to add, drag to move
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                flexWrap: 'wrap',
+              }}
+            >
+              {stickers.map((sticker, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleAddSticker(sticker)}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                    backgroundColor: '#f7f7f5',
+                    border: '1px solid #e8e8e8',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
+                >
+                  {sticker}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
 

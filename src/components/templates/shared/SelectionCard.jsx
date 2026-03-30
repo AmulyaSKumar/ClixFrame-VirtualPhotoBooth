@@ -1,17 +1,25 @@
 import React from 'react'
 
-function SelectionCard({ children, name, description, isSelected, onClick }) {
+function SelectionCard({ children, name, description, isSelected, onClick, variant = 'layout' }) {
+  // Min heights: layout = 160px, template = 200px
+  const minHeight = variant === 'template' ? '200px' : '160px'
+
   return (
     <button
       onClick={onClick}
-      className="relative flex flex-col bg-white rounded-xl transition-all duration-200 text-left"
+      className="relative flex flex-col bg-white text-left"
       style={{
         padding: '14px 12px 12px',
         border: isSelected ? '1.5px solid #0a0a0a' : '1px solid #e8e8e8',
+        borderRadius: '12px',
+        minHeight,
+        cursor: 'pointer',
+        transition: 'border-color 0.15s ease',
+        backgroundColor: '#ffffff',
       }}
       onMouseEnter={(e) => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = '#bbb'
+          e.currentTarget.style.borderColor = '#aaa'
         }
       }}
       onMouseLeave={(e) => {
@@ -23,28 +31,37 @@ function SelectionCard({ children, name, description, isSelected, onClick }) {
       {/* Selection Dot */}
       {isSelected && (
         <div
-          className="absolute top-2 right-2 rounded-full"
           style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
             width: '7px',
             height: '7px',
             backgroundColor: '#0a0a0a',
+            borderRadius: '50%',
           }}
         />
       )}
 
       {/* Preview Content */}
-      <div className="w-full flex items-center justify-center mb-3">
+      <div
+        className="w-full flex items-center justify-center"
+        style={{
+          flex: 1,
+          marginBottom: '10px',
+        }}
+      >
         {children}
       </div>
 
       {/* Name */}
       <span
-        className="block"
         style={{
+          display: 'block',
           fontSize: '13px',
           fontWeight: 500,
           color: '#0a0a0a',
-          marginBottom: '2px',
+          marginTop: '10px',
         }}
       >
         {name}
@@ -52,10 +69,11 @@ function SelectionCard({ children, name, description, isSelected, onClick }) {
 
       {/* Description */}
       <span
-        className="block"
         style={{
+          display: 'block',
           fontSize: '11px',
-          color: '#888',
+          color: '#aaa',
+          marginTop: '2px',
         }}
       >
         {description}

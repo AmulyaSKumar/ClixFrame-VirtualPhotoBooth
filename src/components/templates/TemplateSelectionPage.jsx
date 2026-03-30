@@ -23,41 +23,60 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ backgroundColor: '#f7f7f5' }}
+      style={{
+        backgroundColor: '#f7f7f5',
+        padding: '0 clamp(1.5rem, 5vw, 3rem)',
+      }}
     >
       {/* Header */}
-      <header className="pt-6 pb-4 px-5">
+      <header style={{ paddingTop: '24px', paddingBottom: '16px' }}>
         {/* Back Arrow + Logo */}
-        <div className="flex items-center justify-center relative mb-4">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            marginBottom: '16px',
+          }}
+        >
           {/* Back Arrow */}
           <button
             onClick={onBack}
-            className="absolute left-0 p-1"
             style={{
+              position: 'absolute',
+              left: 0,
+              padding: '4px',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: '#888',
+              fontSize: '13px',
             }}
           >
             <svg
-              width="20"
-              height="20"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#0a0a0a"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
+            <span>Back</span>
           </button>
 
           {/* Logo */}
           <span
             style={{
               fontSize: '18px',
-              fontWeight: 600,
+              fontWeight: 500,
               color: '#0a0a0a',
               letterSpacing: '-0.02em',
             }}
@@ -70,19 +89,19 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-6">
+        <div style={{ marginBottom: '24px' }}>
           <ProgressBar currentStep={2} totalSteps={3} />
         </div>
 
         {/* Title */}
-        <div className="text-center">
+        <div style={{ textAlign: 'center' }}>
           <h1
             style={{
               fontSize: '28px',
               fontWeight: 500,
               color: '#0a0a0a',
               letterSpacing: '-0.02em',
-              marginBottom: '6px',
+              margin: 0,
             }}
           >
             Choose your template
@@ -91,6 +110,8 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
             style={{
               fontSize: '13px',
               color: '#888',
+              margin: 0,
+              marginTop: '4px',
             }}
           >
             Frames and borders for your photos
@@ -99,22 +120,32 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 pb-4 overflow-y-auto">
-        <div className="mx-auto" style={{ maxWidth: '640px' }}>
+      <main
+        style={{
+          flex: 1,
+          paddingBottom: '120px',
+          overflowY: 'auto',
+        }}
+      >
+        <div style={{ width: '100%' }}>
           {Object.entries(templateOptions).map(([sectionKey, templates]) => (
-            <div key={sectionKey} className="mb-6">
+            <div key={sectionKey} style={{ marginBottom: '24px' }}>
               {/* Section Label */}
               <div
-                className="flex items-center gap-3 mb-3"
-                style={{ paddingLeft: '4px' }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '1rem',
+                }}
               >
                 <span
                   style={{
                     fontSize: '11px',
-                    fontWeight: 500,
-                    color: '#888',
+                    letterSpacing: '0.13em',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
+                    color: '#aaa',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {sectionLabels[sectionKey]}
@@ -122,8 +153,8 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
                 <div
                   style={{
                     flex: 1,
-                    height: '1px',
-                    backgroundColor: '#e0e0e0',
+                    height: '0.5px',
+                    backgroundColor: '#ddd',
                   }}
                 />
               </div>
@@ -132,8 +163,9 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                  gap: '12px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                  gap: '14px',
+                  width: '100%',
                 }}
               >
                 {templates.map((template) => {
@@ -145,10 +177,11 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
                       description={template.description}
                       isSelected={selectedTemplate === template.id}
                       onClick={() => setSelectedTemplate(template.id)}
+                      variant="template"
                     >
                       <div
                         style={{
-                          height: '100px',
+                          height: '130px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -166,38 +199,51 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
         </div>
       </main>
 
-      {/* Footer CTA */}
-      <footer className="px-5 pb-6 pt-4" style={{ backgroundColor: '#f7f7f5' }}>
-        <div className="max-w-md mx-auto">
-          <button
-            onClick={handleContinue}
-            className="w-full"
-            style={{
-              backgroundColor: '#0a0a0a',
-              color: '#fff',
-              padding: '13px 36px',
-              fontSize: '13px',
-              fontWeight: 500,
-              letterSpacing: '0.07em',
-              textTransform: 'uppercase',
-              borderRadius: '4px',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Continue to camera
-          </button>
-          <p
-            className="text-center mt-3"
-            style={{
-              fontSize: '11px',
-              color: '#bbb',
-              letterSpacing: '0.03em',
-            }}
-          >
-            {selectedTemplateName} selected
-          </p>
-        </div>
+      {/* Sticky Footer CTA */}
+      <footer
+        style={{
+          position: 'sticky',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#fff',
+          borderTop: '0.5px solid #e8e8e8',
+          padding: '1rem 2rem',
+          marginLeft: 'calc(-1 * clamp(1.5rem, 5vw, 3rem))',
+          marginRight: 'calc(-1 * clamp(1.5rem, 5vw, 3rem))',
+        }}
+      >
+        <button
+          onClick={handleContinue}
+          style={{
+            display: 'block',
+            width: '100%',
+            maxWidth: '400px',
+            margin: '0 auto',
+            backgroundColor: '#0a0a0a',
+            color: '#fff',
+            padding: '14px',
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0.07em',
+            textTransform: 'uppercase',
+            borderRadius: '4px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Continue to camera
+        </button>
+        <p
+          style={{
+            fontSize: '11px',
+            color: '#bbb',
+            textAlign: 'center',
+            marginTop: '6px',
+          }}
+        >
+          {selectedTemplateName} selected
+        </p>
       </footer>
     </div>
   )

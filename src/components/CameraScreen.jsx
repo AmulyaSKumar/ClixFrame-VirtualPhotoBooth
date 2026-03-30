@@ -1,5 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+// Prompt text changes per shot
+const promptTexts = {
+  1: 'Look at the camera and smile!',
+  2: 'Try a different expression',
+  3: 'One more — make it fun!',
+  4: 'Last one — give it your best!',
+}
+
 function CameraScreen({
   photoNumber = 1,
   totalPhotos = 4,
@@ -13,12 +21,18 @@ function CameraScreen({
   const videoRef = useRef(null)
   const [cameraError, setCameraError] = useState('')
   const [flashEffect, setFlashEffect] = useState(false)
+  const [countdownKey, setCountdownKey] = useState(0)
 
   useEffect(() => {
     if (videoRef.current && onVideoRef) {
       onVideoRef(videoRef.current)
     }
   }, [onVideoRef])
+
+  // Track countdown changes for fade animation
+  useEffect(() => {
+    setCountdownKey((prev) => prev + 1)
+  }, [countdown])
 
   useEffect(() => {
     if (countdown === 1 && isCapturing) {
@@ -71,47 +85,243 @@ function CameraScreen({
 
   const allPhotosDone = photoNumber >= totalPhotos && !isCapturing
 
+  // Progress dots component
+  const ProgressDots = () => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        marginTop: '16px',
+      }}
+    >
+      {Array.from({ length: totalPhotos }, (_, i) => {
+        const isCompleted = i < photoNumber - 1 || (i === photoNumber - 1 && allPhotosDone)
+        const isCurrent = i === photoNumber - 1 && !allPhotosDone
+        const isUpcoming = i >= photoNumber
+
+        return (
+          <div
+            key={i}
+            style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isCompleted || isCurrent ? '#0a0a0a' : '#ddd',
+              position: 'relative',
+            }}
+          >
+            {isCurrent && isCapturing && !isPaused && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  animation: 'pulse-ring 1.5s ease-out infinite',
+                }}
+              />
+            )}
+          </div>
+        )
+      })}
+      <style>{`
+        @keyframes pulse-ring {
+          0% {
+            box-shadow: 0 0 0 0 rgba(10, 10, 10, 0.3);
+          }
+          70% {
+            box-shadow: 0 0 0 6px transparent;
+          }
+          100% {
+            box-shadow: 0 0 0 0 transparent;
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+
   return (
-    <div className="min-h-screen w-full flex flex-col bg-ink">
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#f7f7f5',
+        padding: '0 clamp(1.5rem, 5vw, 3rem)',
+      }}
+    >
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4">
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingTop: '16px',
+          paddingBottom: '8px',
+        }}
+      >
+        {/* Exit Button */}
         <button
           onClick={() => onCancel?.()}
-          className="flex items-center gap-2 text-bg/60 hover:text-bg transition-colors"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#888',
+            fontSize: '13px',
+            padding: '4px',
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span className="font-body text-sm">Exit</span>
+          <span>Exit</span>
         </button>
 
-        <div className="font-logo text-xl font-bold text-bg tracking-tight">
-          Clix<span className="font-accent text-2xl">frame</span>
-        </div>
+        {/* Logo */}
+        <span
+          style={{
+            fontSize: '18px',
+            fontWeight: 500,
+            color: '#0a0a0a',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Clix
+          <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
+            frame
+          </span>
+        </span>
 
-        <div className="flex items-center gap-2 bg-bg/10 px-4 py-2 rounded-full">
-          <span className="font-hero text-2xl font-bold text-bg">{photoNumber}</span>
-          <span className="text-bg/40">/</span>
-          <span className="font-body text-lg text-bg/60">{totalPhotos}</span>
-        </div>
+        {/* Photo Counter */}
+        <span
+          style={{
+            fontSize: '13px',
+            fontWeight: 500,
+            color: '#888',
+          }}
+        >
+          {photoNumber} / {totalPhotos}
+        </span>
       </header>
 
+      {/* Progress Dots */}
+      <ProgressDots />
+
       {/* Camera Area */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div className="relative w-full max-w-3xl aspect-[4/3] bg-black rounded-2xl overflow-hidden shadow-2xl">
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px 0',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '720px',
+            maxHeight: '70vh',
+            aspectRatio: '4 / 3',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            border: '1px solid #e8e8e8',
+            backgroundColor: '#000',
+          }}
+        >
           {cameraError ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-ink">
-              <div className="text-center space-y-4 p-6">
-                <div className="w-16 h-16 mx-auto bg-bg/10 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f7f7f5',
+              }}
+            >
+              <div style={{ textAlign: 'center', padding: '24px' }}>
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    margin: '0 auto 16px',
+                    backgroundColor: '#e8e8e8',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#888"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <h2 className="font-hero text-xl font-bold text-bg">Camera Unavailable</h2>
-                <p className="font-body text-bg/60 text-sm max-w-xs">{cameraError}</p>
+                <h2
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 500,
+                    color: '#0a0a0a',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Camera Unavailable
+                </h2>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: '#888',
+                    maxWidth: '280px',
+                    margin: '0 auto 16px',
+                  }}
+                >
+                  {cameraError}
+                </p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="font-subheading text-sm bg-bg text-ink px-6 py-2 rounded-full hover:bg-bg/90 transition-colors"
+                  style={{
+                    backgroundColor: '#0a0a0a',
+                    color: '#fff',
+                    padding: '10px 24px',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    borderRadius: '4px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
                   Try Again
                 </button>
@@ -121,66 +331,208 @@ function CameraScreen({
             <>
               <video
                 ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover scale-x-[-1]"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: 'scaleX(-1)',
+                }}
                 autoPlay
                 playsInline
                 muted
               />
 
+              {/* Flash Effect */}
               {flashEffect && (
-                <div className="absolute inset-0 bg-white z-30 animate-flash" />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: '#fff',
+                    zIndex: 30,
+                  }}
+                />
               )}
 
-              {/* Countdown Overlay - Top Right */}
+              {/* Countdown Overlay - Centered with backdrop */}
               {isCapturing && !isPaused && !allPhotosDone && (
-                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none">
-                  <span className="font-hero text-7xl sm:text-8xl font-bold text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]" style={{ textShadow: '0 0 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>
+                <div
+                  key={countdownKey}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '120px',
+                    height: '120px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    borderRadius: '50%',
+                    animation: 'fadeIn 0.2s ease',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 'clamp(80px, 15vw, 120px)',
+                      fontWeight: 300,
+                      color: '#fff',
+                      lineHeight: 1,
+                    }}
+                  >
                     {countdown}
                   </span>
                 </div>
               )}
 
-              {/* Status Overlay - Center */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {allPhotosDone ? (
-                  <div className="bg-bg/95 backdrop-blur-sm px-8 py-4 rounded-2xl">
-                    <span className="font-hero text-4xl sm:text-5xl font-bold text-ink">
+              {/* Done Overlay */}
+              {allPhotosDone && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: '#fff',
+                      padding: '16px 32px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: '28px',
+                        fontWeight: 500,
+                        color: '#0a0a0a',
+                      }}
+                    >
                       Done!
                     </span>
                   </div>
-                ) : isPaused ? (
-                  <div className="text-center">
-                    <span className="font-hero text-4xl sm:text-5xl font-bold text-white block mb-2" style={{ textShadow: '0 0 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4)' }}>
+                </div>
+              )}
+
+              {/* Get Ready Overlay */}
+              {isPaused && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  }}
+                >
+                  <div style={{ textAlign: 'center' }}>
+                    <span
+                      style={{
+                        fontSize: '28px',
+                        fontWeight: 500,
+                        color: '#fff',
+                        display: 'block',
+                        marginBottom: '8px',
+                      }}
+                    >
                       Get Ready!
                     </span>
-                    <p className="font-body text-base text-white/90" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+                    <span
+                      style={{
+                        fontSize: '15px',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                      }}
+                    >
                       Photo {photoNumber} of {totalPhotos}
-                    </p>
+                    </span>
                   </div>
-                ) : null}
-              </div>
+                </div>
+              )}
 
-              {/* Corner Markers */}
-              <div className="absolute inset-4 pointer-events-none">
-                <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-white/40 rounded-tl-lg" />
-                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/40 rounded-tr-lg" />
-                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/40 rounded-bl-lg" />
-                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white/40 rounded-br-lg" />
+              {/* Corner Guides (Viewfinder brackets) */}
+              <div style={{ position: 'absolute', inset: '16px', pointerEvents: 'none' }}>
+                {/* Top Left */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '20px',
+                    height: '20px',
+                    borderTop: '2px solid rgba(255, 255, 255, 0.7)',
+                    borderLeft: '2px solid rgba(255, 255, 255, 0.7)',
+                  }}
+                />
+                {/* Top Right */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '20px',
+                    height: '20px',
+                    borderTop: '2px solid rgba(255, 255, 255, 0.7)',
+                    borderRight: '2px solid rgba(255, 255, 255, 0.7)',
+                  }}
+                />
+                {/* Bottom Left */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '20px',
+                    height: '20px',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.7)',
+                    borderLeft: '2px solid rgba(255, 255, 255, 0.7)',
+                  }}
+                />
+                {/* Bottom Right */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: '20px',
+                    height: '20px',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.7)',
+                    borderRight: '2px solid rgba(255, 255, 255, 0.7)',
+                  }}
+                />
               </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Bottom Status */}
+      {/* Bottom Prompt Text */}
       {!cameraError && (
-        <div className="px-6 py-6 text-center">
-          <p className="font-body text-bg/70 text-base">
+        <div
+          style={{
+            textAlign: 'center',
+            paddingBottom: '32px',
+            marginTop: '-8px',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '15px',
+              color: '#555',
+              margin: 0,
+            }}
+          >
             {allPhotosDone
               ? 'Processing your photo strip...'
-              : isCapturing
-              ? 'Look at the camera and smile!'
-              : 'Getting ready...'}
+              : isPaused
+              ? 'Get ready for the next shot...'
+              : promptTexts[photoNumber] || 'Look at the camera and smile!'}
           </p>
         </div>
       )}

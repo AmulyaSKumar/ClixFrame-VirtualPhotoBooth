@@ -2,13 +2,23 @@ import React from 'react'
 
 function ProgressBar({ currentStep = 1, totalSteps = 3 }) {
   return (
-    <div className="flex items-center justify-center gap-1.5">
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+      }}
+    >
       {Array.from({ length: totalSteps }, (_, i) => (
         <div
           key={i}
-          className="h-0.5 w-6 rounded-sm transition-colors duration-200"
           style={{
+            width: '24px',
+            height: '2px',
+            borderRadius: '1px',
             backgroundColor: i < currentStep ? '#0a0a0a' : '#ddd',
+            transition: 'background-color 0.2s ease',
           }}
         />
       ))}
