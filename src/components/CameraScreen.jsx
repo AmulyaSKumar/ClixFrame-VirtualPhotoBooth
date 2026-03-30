@@ -131,7 +131,16 @@ function CameraScreen({
                 <div className="absolute inset-0 bg-white z-30 animate-flash" />
               )}
 
-              {/* Countdown Overlay */}
+              {/* Countdown Overlay - Top Right */}
+              {isCapturing && !isPaused && !allPhotosDone && (
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none">
+                  <span className="font-hero text-7xl sm:text-8xl font-bold text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]" style={{ textShadow: '0 0 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>
+                    {countdown}
+                  </span>
+                </div>
+              )}
+
+              {/* Status Overlay - Center */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 {allPhotosDone ? (
                   <div className="bg-bg/95 backdrop-blur-sm px-8 py-4 rounded-2xl">
@@ -140,21 +149,13 @@ function CameraScreen({
                     </span>
                   </div>
                 ) : isPaused ? (
-                  <div className="text-center bg-ink/80 backdrop-blur-sm px-8 py-6 rounded-2xl">
-                    <span className="font-hero text-3xl sm:text-4xl font-bold text-bg block mb-2">
+                  <div className="text-center">
+                    <span className="font-hero text-4xl sm:text-5xl font-bold text-white block mb-2" style={{ textShadow: '0 0 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4)' }}>
                       Get Ready!
                     </span>
-                    <p className="font-body text-sm text-bg/70">
+                    <p className="font-body text-base text-white/90" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
                       Photo {photoNumber} of {totalPhotos}
                     </p>
-                  </div>
-                ) : isCapturing ? (
-                  <div className="relative">
-                    <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-ink/80 backdrop-blur-md flex items-center justify-center shadow-2xl">
-                      <span className="font-hero text-8xl sm:text-9xl font-bold text-bg">
-                        {countdown}
-                      </span>
-                    </div>
                   </div>
                 ) : null}
               </div>
