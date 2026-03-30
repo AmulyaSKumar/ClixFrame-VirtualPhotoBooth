@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react'
+import html2canvas from 'html2canvas'
 
 // Minimal sticker set
 const stickers = ['⭐', '❤️', '✨', '🎉', '😎', '💕']
@@ -109,28 +110,21 @@ function ResultScreen({
     setIsDownloading(true)
 
     try {
-      // Create canvas and render
-      const canvas = document.createElement('canvas')
       const stripElement = stripRef.current
       if (!stripElement) return
 
-      // Use html2canvas-like approach with basic canvas
-      const rect = stripElement.getBoundingClientRect()
-      const scale = 2 // For higher resolution
-      canvas.width = rect.width * scale
-      canvas.height = rect.height * scale
+      // Use html2canvas to capture the rendered element
+      const canvas = await html2canvas(stripElement, {
+        scale: 2, // Higher resolution
+        useCORS: true, // Allow cross-origin images
+        allowTaint: true,
+        backgroundColor: null, // Use element's background
+        logging: false,
+      })
 
-      const ctx = canvas.getContext('2d')
-      ctx.scale(scale, scale)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(0, 0, rect.width, rect.height)
-
-      // For now, create a simple download
+      // Create download link
       const link = document.createElement('a')
-      link.download = `clixframe-${layoutId}-${templateId}.png`
-
-      // Use dom-to-image or similar in production
-      // For now, just download the visible element
+      link.download = `clixframe-${templateId}-${Date.now()}.png`
       link.href = canvas.toDataURL('image/png', 1.0)
       link.click()
     } catch (error) {
@@ -138,7 +132,7 @@ function ResultScreen({
     } finally {
       setIsDownloading(false)
     }
-  }, [photos, layoutId, templateId])
+  }, [photos, templateId])
 
   // Render photo with filter
   const renderPhoto = (photo, index, style = {}) => (
