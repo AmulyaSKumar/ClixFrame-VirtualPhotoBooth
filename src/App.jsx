@@ -14,9 +14,11 @@ function App() {
   const [isPaused, setIsPaused] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [selectedLayout, setSelectedLayout] = useState(null)
+  const [cameraReady, setCameraReady] = useState(false)
 
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
+  const facingModeRef = useRef('user') // Track current camera facing mode
 
   // Get total photos - from layout if available, else from template's fixed count, else 4
   const totalPhotos = selectedLayout?.photos || selectedTemplate?.fixedPhotos || 4
@@ -24,6 +26,16 @@ function App() {
   // Set video ref from CameraScreen
   const setVideoElement = useCallback((videoElement) => {
     videoRef.current = videoElement
+  }, [])
+
+  // Handle camera ready state from CameraScreen
+  const handleCameraReady = useCallback((ready) => {
+    setCameraReady(ready)
+  }, [])
+
+  // Handle facing mode changes from CameraScreen
+  const handleFacingModeChange = useCallback((mode) => {
+    facingModeRef.current = mode
   }, [])
 
   // Capture photo from video stream
@@ -40,8 +52,12 @@ function App() {
 
     const ctx = canvas.getContext('2d')
 
-    ctx.translate(canvas.width, 0)
-    ctx.scale(-1, 1)
+    // Only mirror for front camera (user facing)
+    if (facingModeRef.current === 'user') {
+      ctx.translate(canvas.width, 0)
+      ctx.scale(-1, 1)
+    }
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -51,7 +67,7 @@ function App() {
 
   // Main countdown and capture logic
   useEffect(() => {
-    if (currentScreen !== 'camera' || !isCapturing || isPaused) return
+    if (currentScreen !== 'camera' || !isCapturing || isPaused || !cameraReady) return
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -92,7 +108,7 @@ function App() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [currentScreen, isCapturing, isPaused, capturePhoto, totalPhotos])
+  }, [currentScreen, isCapturing, isPaused, cameraReady, capturePhoto, totalPhotos])
 
   // Stop countdown when all photos captured
   useEffect(() => {
@@ -134,6 +150,7 @@ function App() {
     setCapturedPhotos([])
     setIsCapturing(true)
     setIsPaused(false)
+    setCameraReady(false)
     setCurrentScreen('camera')
   }
 
@@ -234,6 +251,8 @@ function App() {
               onRetake={handleRetake}
               onCancel={handleBackToLayoutOrTemplate}
               onVideoRef={setVideoElement}
+              onCameraReady={handleCameraReady}
+              onFacingModeChange={handleFacingModeChange}
               selectedLayout={selectedLayout}
               selectedTemplate={selectedTemplate}
             />

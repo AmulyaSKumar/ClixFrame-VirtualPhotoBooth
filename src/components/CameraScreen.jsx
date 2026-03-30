@@ -17,17 +17,29 @@ function CameraScreen({
   onRetake,
   onCancel,
   onVideoRef,
+  onCameraReady,
+  onFacingModeChange,
 }) {
   const videoRef = useRef(null)
   const [cameraError, setCameraError] = useState('')
   const [flashEffect, setFlashEffect] = useState(false)
   const [countdownKey, setCountdownKey] = useState(0)
+  const [facingMode, setFacingMode] = useState('user') // 'user' = front, 'environment' = back
+  const [cameraReady, setCameraReady] = useState(false)
+  const streamRef = useRef(null)
 
   useEffect(() => {
     if (videoRef.current && onVideoRef) {
       onVideoRef(videoRef.current)
     }
   }, [onVideoRef])
+
+  // Notify parent of initial facing mode
+  useEffect(() => {
+    if (onFacingModeChange) {
+      onFacingModeChange(facingMode)
+    }
+  }, []) // Only on mount
 
   // Track countdown changes for fade animation
   useEffect(() => {
@@ -45,45 +57,75 @@ function CameraScreen({
   }, [countdown, isCapturing])
 
   useEffect(() => {
-    let stream
-
     const startCamera = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setCameraError('Camera is not supported on this browser.')
         return
       }
 
+      // Stop existing stream before starting new one
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
+      }
+
+      setCameraReady(false)
+      setCameraError('')
+
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: 'user',
+            facingMode: facingMode,
             width: { ideal: 1280 },
             height: { ideal: 720 },
           },
           audio: false,
         })
 
+        streamRef.current = stream
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream
           if (onVideoRef) {
             onVideoRef(videoRef.current)
           }
+          // Wait for video to be ready
+          videoRef.current.onloadedmetadata = () => {
+            setCameraReady(true)
+            if (onCameraReady) {
+              onCameraReady(true)
+            }
+          }
         }
       } catch (error) {
         setCameraError('Unable to access camera. Please allow camera permissions.')
+        setCameraReady(false)
+        if (onCameraReady) {
+          onCameraReady(false)
+        }
       }
     }
 
     startCamera()
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop())
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
       }
     }
-  }, [onVideoRef])
+  }, [facingMode, onVideoRef, onCameraReady])
 
   const allPhotosDone = photoNumber >= totalPhotos && !isCapturing
+
+  // Toggle between front and back camera
+  const toggleCamera = () => {
+    setFacingMode((prev) => {
+      const newMode = prev === 'user' ? 'environment' : 'user'
+      if (onFacingModeChange) {
+        onFacingModeChange(newMode)
+      }
+      return newMode
+    })
+  }
 
   // Progress dots component
   const ProgressDots = () => (
@@ -170,35 +212,75 @@ function CameraScreen({
           paddingBottom: '8px',
         }}
       >
-        {/* Exit Button */}
-        <button
-          onClick={() => onCancel?.()}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#888',
-            fontSize: '13px',
-            padding: '4px',
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {/* Left buttons group */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Exit Button */}
+          <button
+            onClick={() => onCancel?.()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#888',
+              fontSize: '13px',
+              padding: '4px',
+            }}
           >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          <span>Exit</span>
-        </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span>Exit</span>
+          </button>
+
+          {/* Camera Toggle Button */}
+          <button
+            onClick={toggleCamera}
+            disabled={!cameraReady || isCapturing}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              cursor: cameraReady && !isCapturing ? 'pointer' : 'not-allowed',
+              color: cameraReady && !isCapturing ? '#555' : '#bbb',
+              fontSize: '12px',
+              padding: '6px 10px',
+              transition: 'all 0.15s ease',
+            }}
+            title={facingMode === 'user' ? 'Switch to back camera' : 'Switch to front camera'}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+              <path d="M17 8l-1.5 1.5" />
+              <path d="M7 8l1.5 1.5" />
+            </svg>
+            <span>{facingMode === 'user' ? 'Back' : 'Front'}</span>
+          </button>
+        </div>
 
         {/* Logo */}
         <span
@@ -337,12 +419,47 @@ function CameraScreen({
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  transform: 'scaleX(-1)',
+                  transform: facingMode === 'user' ? 'scaleX(-1)' : 'none',
                 }}
                 autoPlay
                 playsInline
                 muted
               />
+
+              {/* Loading overlay while waiting for camera */}
+              {!cameraReady && !cameraError && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    zIndex: 20,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '3px solid rgba(255, 255, 255, 0.3)',
+                      borderTopColor: '#fff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                    }}
+                  />
+                  <p style={{ color: '#fff', marginTop: '16px', fontSize: '14px' }}>
+                    Waiting for camera...
+                  </p>
+                  <style>{`
+                    @keyframes spin {
+                      to { transform: rotate(360deg); }
+                    }
+                  `}</style>
+                </div>
+              )}
 
               {/* Flash Effect */}
               {flashEffect && (
@@ -357,7 +474,7 @@ function CameraScreen({
               )}
 
               {/* Countdown - Top Right */}
-              {isCapturing && !isPaused && !allPhotosDone && (
+              {isCapturing && !isPaused && !allPhotosDone && cameraReady && (
                 <div
                   key={countdownKey}
                   style={{
@@ -518,7 +635,9 @@ function CameraScreen({
               margin: 0,
             }}
           >
-            {allPhotosDone
+            {!cameraReady
+              ? 'Please allow camera access to continue...'
+              : allPhotosDone
               ? 'Processing your photo strip...'
               : isPaused
               ? 'Get ready for the next shot...'
