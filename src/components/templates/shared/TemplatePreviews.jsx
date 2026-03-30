@@ -689,6 +689,315 @@ export function VintageFilmPreview({ width = 120, height = 90 }) {
 }
 
 // ============================================
+// COLORFUL TEMPLATES (Fun decorative frames)
+// ============================================
+
+// 15. Pink Hearts - Hearts border with pink theme
+export function PinkHeartsPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(135deg, #ffeef8 0%, #fff0f5 100%)',
+        border: '3px solid #ff69b4',
+        borderRadius: '12px',
+        padding: '8px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Corner hearts */}
+      <div style={{ position: 'absolute', top: '4px', left: '6px', fontSize: '12px' }}>💕</div>
+      <div style={{ position: 'absolute', top: '4px', right: '6px', fontSize: '12px' }}>💕</div>
+      <div style={{ position: 'absolute', bottom: '4px', left: '6px', fontSize: '12px' }}>💕</div>
+      <div style={{ position: 'absolute', bottom: '4px', right: '6px', fontSize: '12px' }}>💕</div>
+
+      {/* Side hearts */}
+      <div style={{ position: 'absolute', top: '50%', left: '2px', transform: 'translateY(-50%)', fontSize: '10px' }}>💗</div>
+      <div style={{ position: 'absolute', top: '50%', right: '2px', transform: 'translateY(-50%)', fontSize: '10px' }}>💗</div>
+
+      {/* Photo area */}
+      <div
+        style={{
+          width: '100%',
+          height: '70%',
+          backgroundColor: '#ffb6c1',
+          borderRadius: '8px',
+          marginTop: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PersonPlaceholder variant={0} width={width - 30} height={70} />
+      </div>
+
+      {/* Caption */}
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '8px', color: '#d63384', fontStyle: 'italic' }}>
+        with love ♡
+      </div>
+    </div>
+  )
+}
+
+// 16. Blue Stars - Stars border with blue theme
+export function BlueStarsPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%)',
+        border: '3px solid #4169e1',
+        borderRadius: '12px',
+        padding: '8px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Corner stars */}
+      <div style={{ position: 'absolute', top: '3px', left: '5px', fontSize: '14px' }}>⭐</div>
+      <div style={{ position: 'absolute', top: '3px', right: '5px', fontSize: '14px' }}>⭐</div>
+      <div style={{ position: 'absolute', bottom: '3px', left: '5px', fontSize: '14px' }}>⭐</div>
+      <div style={{ position: 'absolute', bottom: '3px', right: '5px', fontSize: '14px' }}>⭐</div>
+
+      {/* Small stars */}
+      <div style={{ position: 'absolute', top: '30%', left: '2px', fontSize: '8px' }}>✨</div>
+      <div style={{ position: 'absolute', top: '60%', right: '2px', fontSize: '8px' }}>✨</div>
+
+      {/* Photo area */}
+      <div
+        style={{
+          width: '100%',
+          height: '70%',
+          backgroundColor: '#87ceeb',
+          borderRadius: '8px',
+          marginTop: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PersonPlaceholder variant={1} width={width - 30} height={70} />
+      </div>
+
+      {/* Caption */}
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '8px', color: '#4169e1', fontWeight: 600 }}>
+        shine bright ★
+      </div>
+    </div>
+  )
+}
+
+// 17. Northern Lights - Aurora gradient effect
+export function NorthernLightsPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(180deg, #0c1445 0%, #1a237e 20%, #4a148c 40%, #7b1fa2 60%, #00695c 80%, #004d40 100%)',
+        borderRadius: '12px',
+        padding: '10px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Aurora waves */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        left: 0,
+        right: 0,
+        height: '20px',
+        background: 'linear-gradient(90deg, transparent, rgba(0,255,128,0.3), rgba(0,200,255,0.3), transparent)',
+        filter: 'blur(4px)',
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '25px',
+        left: 0,
+        right: 0,
+        height: '15px',
+        background: 'linear-gradient(90deg, transparent, rgba(255,0,255,0.2), rgba(0,255,200,0.2), transparent)',
+        filter: 'blur(3px)',
+      }} />
+
+      {/* Photo area */}
+      <div
+        style={{
+          width: '100%',
+          height: '70%',
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          borderRadius: '8px',
+          marginTop: '20px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PersonPlaceholder variant={2} width={width - 30} height={70} />
+      </div>
+
+      {/* Caption */}
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '8px', color: '#b2dfdb', fontStyle: 'italic' }}>
+        ✦ aurora dreams ✦
+      </div>
+    </div>
+  )
+}
+
+// 18. Rainbow Frame - Colorful rainbow border
+export function RainbowFramePreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)',
+        borderRadius: '12px',
+        padding: '4px',
+        position: 'relative',
+      }}
+    >
+      {/* Inner white container */}
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#fff',
+          borderRadius: '9px',
+          padding: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Photo area */}
+        <div
+          style={{
+            flex: 1,
+            background: 'linear-gradient(45deg, #ffe0e0, #ffe0ff, #e0e0ff, #e0ffff, #e0ffe0, #ffffe0)',
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <PersonPlaceholder variant={3} width={width - 34} height={80} />
+        </div>
+
+        {/* Rainbow emoji row */}
+        <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '10px', letterSpacing: '2px' }}>
+          🌈✨🌈
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 19. Confetti Party - Fun party confetti frame
+export function ConfettiPartyPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(135deg, #fff9c4 0%, #fff59d 100%)',
+        border: '3px solid #ffc107',
+        borderRadius: '12px',
+        padding: '8px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Confetti pieces */}
+      <div style={{ position: 'absolute', top: '5px', left: '10px', fontSize: '10px' }}>🎊</div>
+      <div style={{ position: 'absolute', top: '8px', right: '15px', fontSize: '8px' }}>🎉</div>
+      <div style={{ position: 'absolute', top: '20px', left: '5px', fontSize: '6px', color: '#e91e63' }}>●</div>
+      <div style={{ position: 'absolute', top: '15px', right: '8px', fontSize: '6px', color: '#2196f3' }}>●</div>
+      <div style={{ position: 'absolute', bottom: '25px', left: '8px', fontSize: '6px', color: '#4caf50' }}>●</div>
+      <div style={{ position: 'absolute', bottom: '20px', right: '10px', fontSize: '6px', color: '#9c27b0' }}>●</div>
+      <div style={{ position: 'absolute', bottom: '5px', left: '15px', fontSize: '10px' }}>🎈</div>
+      <div style={{ position: 'absolute', bottom: '8px', right: '12px', fontSize: '10px' }}>🎀</div>
+
+      {/* Photo area */}
+      <div
+        style={{
+          width: '100%',
+          height: '68%',
+          backgroundColor: '#fff',
+          borderRadius: '8px',
+          marginTop: '14px',
+          border: '2px dashed #ff9800',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PersonPlaceholder variant={0} width={width - 34} height={65} />
+      </div>
+
+      {/* Caption */}
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '8px', color: '#e65100', fontWeight: 700 }}>
+        🎉 PARTY TIME! 🎉
+      </div>
+    </div>
+  )
+}
+
+// 20. Flower Garden - Floral decorative frame
+export function FlowerGardenPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        background: 'linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%)',
+        border: '3px solid #81c784',
+        borderRadius: '12px',
+        padding: '8px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Flower decorations */}
+      <div style={{ position: 'absolute', top: '2px', left: '8px', fontSize: '12px' }}>🌸</div>
+      <div style={{ position: 'absolute', top: '4px', right: '10px', fontSize: '10px' }}>🌺</div>
+      <div style={{ position: 'absolute', top: '2px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px' }}>🌼</div>
+      <div style={{ position: 'absolute', bottom: '2px', left: '10px', fontSize: '10px' }}>🌷</div>
+      <div style={{ position: 'absolute', bottom: '4px', right: '8px', fontSize: '12px' }}>🌻</div>
+      <div style={{ position: 'absolute', bottom: '2px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px' }}>🌹</div>
+      <div style={{ position: 'absolute', top: '50%', left: '2px', transform: 'translateY(-50%)', fontSize: '8px' }}>🍃</div>
+      <div style={{ position: 'absolute', top: '50%', right: '2px', transform: 'translateY(-50%)', fontSize: '8px' }}>🍃</div>
+
+      {/* Photo area */}
+      <div
+        style={{
+          width: '100%',
+          height: '68%',
+          backgroundColor: '#fff',
+          borderRadius: '8px',
+          marginTop: '14px',
+          border: '2px solid #a5d6a7',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PersonPlaceholder variant={1} width={width - 34} height={65} />
+      </div>
+
+      {/* Caption */}
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '8px', color: '#388e3c', fontStyle: 'italic' }}>
+        bloom & grow 🌿
+      </div>
+    </div>
+  )
+}
+
+// ============================================
 // EXPORT ALL TEMPLATES WITH METADATA
 // ============================================
 
@@ -811,6 +1120,56 @@ export const templateOptions = {
       needsLayout: true,
     },
   ],
+  colorful: [
+    {
+      id: 'pink-hearts',
+      name: 'Pink hearts',
+      description: '1 photo · Love & hearts',
+      preview: PinkHeartsPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+    {
+      id: 'blue-stars',
+      name: 'Blue stars',
+      description: '1 photo · Starry frame',
+      preview: BlueStarsPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+    {
+      id: 'northern-lights',
+      name: 'Northern lights',
+      description: '1 photo · Aurora effect',
+      preview: NorthernLightsPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+    {
+      id: 'rainbow-frame',
+      name: 'Rainbow',
+      description: '1 photo · Colorful border',
+      preview: RainbowFramePreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+    {
+      id: 'confetti-party',
+      name: 'Confetti party',
+      description: '1 photo · Celebration',
+      preview: ConfettiPartyPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+    {
+      id: 'flower-garden',
+      name: 'Flower garden',
+      description: '1 photo · Floral frame',
+      preview: FlowerGardenPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
+    },
+  ],
 }
 
 // Flat list of all templates
@@ -819,4 +1178,5 @@ export const allTemplates = [
   ...templateOptions.newspaper,
   ...templateOptions.polaroid,
   ...templateOptions.film,
+  ...templateOptions.colorful,
 ]

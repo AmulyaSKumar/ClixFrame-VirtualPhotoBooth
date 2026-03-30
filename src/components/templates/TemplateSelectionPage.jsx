@@ -8,6 +8,7 @@ const sectionLabels = {
   newspaper: 'Newspaper',
   polaroid: 'Polaroid',
   film: 'Film',
+  colorful: 'Colorful',
 }
 
 function TemplateSelectionPage({
