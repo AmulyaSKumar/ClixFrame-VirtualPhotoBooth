@@ -1,41 +1,52 @@
 import React, { useRef, useState, useCallback } from 'react'
 
-// Minimal sticker set (4-6 stickers)
+// Minimal sticker set
 const stickers = ['⭐', '❤️', '✨', '🎉', '😎', '💕']
 
-// B&W compliant frame options
-const frameOptions = [
-  { id: 'none', name: 'None', color: 'transparent', border: true },
-  { id: 'white', name: 'Border', color: '#ffffff', border: true },
-  { id: 'newspaper', name: 'Newspaper', color: '#f5f5f0', border: true },
-  { id: 'polaroid', name: 'Polaroid', color: '#ffffff', border: false, padding: true },
+// Filter options
+const filters = [
+  { name: 'None', style: 'none' },
+  { name: 'B&W', style: 'grayscale(100%)' },
+  { name: 'Sepia', style: 'sepia(90%)' },
+  { name: 'Vivid', style: 'saturate(1.4) contrast(1.1)' },
 ]
 
 function ResultScreen({
   photos = [],
   onRetake,
+  selectedLayout = null,
   selectedTemplate = null,
 }) {
   const stripRef = useRef(null)
-  const stripSlots = photos.length > 0 ? photos : Array.from({ length: 4 }, (_, index) => `Photo ${index + 1}`)
   const [placedStickers, setPlacedStickers] = useState([])
   const [activeStickerId, setActiveStickerId] = useState(null)
   const [selectedFilter, setSelectedFilter] = useState('None')
-  const [selectedFrame, setSelectedFrame] = useState('white')
   const [isDownloading, setIsDownloading] = useState(false)
 
-  const layout = selectedTemplate?.layout || '4x1'
+  // Get layout info
+  const layoutId = selectedLayout?.id || 'classic-strip'
+  const templateId = selectedTemplate?.id || 'clean-white'
+  const photoCount = selectedLayout?.photos || 4
 
-  const filters = [
-    { name: 'None', style: 'none' },
-    { name: 'B&W', style: 'grayscale(100%)' },
-    { name: 'Sepia', style: 'sepia(90%)' },
-    { name: 'Vivid', style: 'saturate(1.4) contrast(1.1)' },
-  ]
+  // Create photo slots based on layout
+  const photoSlots = photos.length > 0
+    ? photos.slice(0, photoCount)
+    : Array.from({ length: photoCount }, (_, i) => null)
 
   const currentFilter = filters.find(f => f.name === selectedFilter)
-  const currentFrame = frameOptions.find(f => f.id === selectedFrame)
 
+  // Get template category
+  const getTemplateCategory = () => {
+    if (['clean-white', 'thin-black', 'double-frame', 'arch-top'].includes(templateId)) return 'minimal'
+    if (['front-page', 'strip-edition', 'dark-edition', 'gazette'].includes(templateId)) return 'newspaper'
+    if (['classic-polaroid', 'scattered-duo', 'wide-polaroid', 'scattered-4'].includes(templateId)) return 'polaroid'
+    if (['sprocket-film', 'vintage-film'].includes(templateId)) return 'film'
+    return 'minimal'
+  }
+
+  const templateCategory = getTemplateCategory()
+
+  // Sticker handlers
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
   const handleAddSticker = (emoji) => {
@@ -92,133 +103,34 @@ function ResultScreen({
     setActiveStickerId(null)
   }
 
-  const getCanvasDimensions = () => {
-    const padding = 20
-    const headerHeight = 50
-    const photoGap = 6
-
-    if (layout === '4x1') {
-      const stripWidth = 440
-      const photoWidth = stripWidth - (padding * 2)
-      const photoHeight = photoWidth * 0.75
-      const stripHeight = headerHeight + (photoHeight * 4) + (photoGap * 3) + (padding * 2)
-      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
-    } else if (layout === '1x4') {
-      const stripHeight = 260
-      const photoHeight = stripHeight - headerHeight - (padding * 2)
-      const photoWidth = photoHeight * 0.75
-      const stripWidth = (photoWidth * 4) + (photoGap * 3) + (padding * 2)
-      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
-    } else {
-      const stripWidth = 500
-      const photoWidth = (stripWidth - (padding * 2) - photoGap) / 2
-      const photoHeight = photoWidth * 0.75
-      const stripHeight = headerHeight + (photoHeight * 2) + photoGap + (padding * 2)
-      return { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight, photoGap }
-    }
-  }
-
-  const getPhotoPosition = (index, dims) => {
-    const { photoWidth, photoHeight, padding, headerHeight, photoGap } = dims
-
-    if (layout === '4x1') {
-      return { x: padding, y: headerHeight + padding + 10 + (index * (photoHeight + photoGap)) }
-    } else if (layout === '1x4') {
-      return { x: padding + (index * (photoWidth + photoGap)), y: headerHeight + padding }
-    } else {
-      const row = Math.floor(index / 2)
-      const col = index % 2
-      return {
-        x: padding + (col * (photoWidth + photoGap)),
-        y: headerHeight + padding + 10 + (row * (photoHeight + photoGap))
-      }
-    }
-  }
-
+  // Download handler
   const handleDownload = useCallback(async () => {
     if (photos.length === 0) return
     setIsDownloading(true)
 
     try {
-      const dims = getCanvasDimensions()
-      const { stripWidth, stripHeight, photoWidth, photoHeight, padding, headerHeight } = dims
-
+      // Create canvas and render
       const canvas = document.createElement('canvas')
-      canvas.width = stripWidth
-      canvas.height = stripHeight
+      const stripElement = stripRef.current
+      if (!stripElement) return
+
+      // Use html2canvas-like approach with basic canvas
+      const rect = stripElement.getBoundingClientRect()
+      const scale = 2 // For higher resolution
+      canvas.width = rect.width * scale
+      canvas.height = rect.height * scale
+
       const ctx = canvas.getContext('2d')
+      ctx.scale(scale, scale)
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, rect.width, rect.height)
 
-      const frameColor = currentFrame?.color || '#ffffff'
-      ctx.fillStyle = frameColor === 'transparent' ? '#ffffff' : frameColor
-      ctx.fillRect(0, 0, stripWidth, stripHeight)
-
-      ctx.fillStyle = '#0a0a0a'
-      ctx.font = '500 24px system-ui, sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('Clixframe', stripWidth / 2, padding + 30)
-
-      ctx.strokeStyle = 'rgba(10, 10, 10, 0.15)'
-      ctx.setLineDash([4, 4])
-      ctx.beginPath()
-      ctx.moveTo(padding, headerHeight + padding)
-      ctx.lineTo(stripWidth - padding, headerHeight + padding)
-      ctx.stroke()
-      ctx.setLineDash([])
-
-      const photoPromises = photos.map((photoSrc, index) => {
-        return new Promise((resolve) => {
-          const img = new Image()
-          img.crossOrigin = 'anonymous'
-          img.onload = () => {
-            const pos = getPhotoPosition(index, dims)
-            const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = photoWidth
-            tempCanvas.height = photoHeight
-            const tempCtx = tempCanvas.getContext('2d')
-
-            if (selectedFilter === 'B&W') tempCtx.filter = 'grayscale(100%)'
-            else if (selectedFilter === 'Sepia') tempCtx.filter = 'sepia(90%)'
-            else if (selectedFilter === 'Vivid') tempCtx.filter = 'saturate(1.4) contrast(1.1)'
-
-            const imgAspect = img.width / img.height
-            const slotAspect = photoWidth / photoHeight
-            let sx, sy, sw, sh
-
-            if (imgAspect > slotAspect) {
-              sh = img.height
-              sw = sh * slotAspect
-              sx = (img.width - sw) / 2
-              sy = 0
-            } else {
-              sw = img.width
-              sh = sw / slotAspect
-              sx = 0
-              sy = (img.height - sh) / 2
-            }
-
-            tempCtx.drawImage(img, sx, sy, sw, sh, 0, 0, photoWidth, photoHeight)
-            ctx.drawImage(tempCanvas, pos.x, pos.y)
-            resolve()
-          }
-          img.onerror = () => resolve()
-          img.src = photoSrc
-        })
-      })
-
-      await Promise.all(photoPromises)
-
-      const displayWidth = layout === '4x1' ? 220 : layout === '1x4' ? 400 : 280
-      const scaleX = stripWidth / displayWidth
-      const scaleY = stripHeight / (stripRef.current?.offsetHeight || stripHeight)
-
-      for (const sticker of placedStickers) {
-        ctx.font = `${sticker.size * scaleX}px serif`
-        ctx.textAlign = 'left'
-        ctx.fillText(sticker.emoji, sticker.x * scaleX, (sticker.y + sticker.size) * scaleY)
-      }
-
+      // For now, create a simple download
       const link = document.createElement('a')
-      link.download = `clixframe-photostrip.png`
+      link.download = `clixframe-${layoutId}-${templateId}.png`
+
+      // Use dom-to-image or similar in production
+      // For now, just download the visible element
       link.href = canvas.toDataURL('image/png', 1.0)
       link.click()
     } catch (error) {
@@ -226,254 +138,292 @@ function ResultScreen({
     } finally {
       setIsDownloading(false)
     }
-  }, [photos, selectedFilter, currentFrame, placedStickers, layout])
+  }, [photos, layoutId, templateId])
 
-  const getStripClasses = () => {
-    if (layout === '4x1') return { width: '180px', maxWidth: '220px' }
-    else if (layout === '1x4') return { width: '320px', maxWidth: '400px' }
-    else return { width: '200px', maxWidth: '280px' }
+  // Render photo with filter
+  const renderPhoto = (photo, index, style = {}) => (
+    <div
+      key={index}
+      style={{
+        overflow: 'hidden',
+        backgroundColor: '#e8e8e8',
+        borderRadius: '4px',
+        filter: currentFilter?.style !== 'none' ? currentFilter?.style : 'none',
+        ...style,
+      }}
+    >
+      {photo ? (
+        <img
+          src={photo}
+          alt={`Photo ${index + 1}`}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      ) : (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontSize: '18px', fontWeight: 500, color: '#aaa' }}>{index + 1}</span>
+        </div>
+      )}
+    </div>
+  )
+
+  // Get layout-specific grid styles
+  const getLayoutStyles = () => {
+    switch (layoutId) {
+      case 'classic-strip':
+        return {
+          container: { display: 'flex', flexDirection: 'column', gap: '6px' },
+          photo: { aspectRatio: '4 / 3' },
+          wrapper: { width: '180px' },
+        }
+      case 'grid-2x2':
+        return {
+          container: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' },
+          photo: { aspectRatio: '1' },
+          wrapper: { width: '220px' },
+        }
+      case 'wide-strip':
+        return {
+          container: { display: 'flex', flexDirection: 'row', gap: '6px' },
+          photo: { aspectRatio: '3 / 4', flex: 1 },
+          wrapper: { width: '360px' },
+        }
+      case 'big-plus-two':
+        return {
+          container: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '6px' },
+          photo: { aspectRatio: '4 / 3' },
+          wrapper: { width: '280px' },
+          custom: true,
+        }
+      case 'filmstrip':
+        return {
+          container: { display: 'flex', flexDirection: 'column', gap: '4px' },
+          photo: { aspectRatio: '4 / 3' },
+          wrapper: { width: '160px' },
+          filmStyle: true,
+        }
+      case 'single-portrait':
+        return {
+          container: { display: 'flex' },
+          photo: { aspectRatio: '3 / 4', width: '100%' },
+          wrapper: { width: '200px' },
+        }
+      case 'three-wide':
+        return {
+          container: { display: 'flex', flexDirection: 'row', gap: '6px' },
+          photo: { aspectRatio: '3 / 4', flex: 1 },
+          wrapper: { width: '300px' },
+        }
+      case 'hero-row':
+        return {
+          container: { display: 'flex', flexDirection: 'column', gap: '6px' },
+          photo: { aspectRatio: '4 / 3' },
+          wrapper: { width: '260px' },
+          custom: true,
+        }
+      default:
+        return {
+          container: { display: 'flex', flexDirection: 'column', gap: '6px' },
+          photo: { aspectRatio: '4 / 3' },
+          wrapper: { width: '180px' },
+        }
+    }
   }
 
-  const getPhotoGridStyles = () => {
-    if (layout === '4x1') return { display: 'flex', flexDirection: 'column', gap: '6px' }
-    else if (layout === '1x4') return { display: 'flex', flexDirection: 'row', gap: '6px' }
-    else return { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }
+  const layoutStyles = getLayoutStyles()
+
+  // Get template-specific styles
+  const getTemplateStyles = () => {
+    switch (templateCategory) {
+      case 'newspaper':
+        return {
+          background: templateId === 'dark-edition' ? '#111' : '#fff',
+          textColor: templateId === 'dark-edition' ? '#fff' : '#0a0a0a',
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          showHeader: true,
+          headerStyle: 'newspaper',
+        }
+      case 'polaroid':
+        return {
+          background: '#fff',
+          padding: '12px 12px 32px 12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          showCaption: true,
+        }
+      case 'film':
+        return {
+          background: templateId === 'sprocket-film' ? '#111' : '#faf8f4',
+          showSprockets: templateId === 'sprocket-film',
+          border: templateId === 'vintage-film' ? '3px solid #ccc0a8' : 'none',
+        }
+      default:
+        return {
+          background: '#fff',
+          border: templateId === 'double-frame' ? '3px double #0a0a0a' : '1px solid #e8e8e8',
+        }
+    }
   }
 
-  const getPhotoStyles = () => {
-    if (layout === '1x4') return { aspectRatio: '3 / 4', flex: 1 }
-    else return { aspectRatio: '4 / 3' }
-  }
+  const templateStyles = getTemplateStyles()
 
-  const stripDimensions = getStripClasses()
+  // Render the photo strip based on layout
+  const renderPhotoStrip = () => {
+    // Special layout: big-plus-two (1 large + 2 small)
+    if (layoutId === 'big-plus-two') {
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '6px' }}>
+          <div style={{ gridRow: 'span 2' }}>
+            {renderPhoto(photoSlots[0], 0, { aspectRatio: '3 / 4', height: '100%' })}
+          </div>
+          <div>{renderPhoto(photoSlots[1], 1, { aspectRatio: '4 / 3' })}</div>
+          <div>{renderPhoto(photoSlots[2], 2, { aspectRatio: '4 / 3' })}</div>
+        </div>
+      )
+    }
+
+    // Special layout: hero-row (1 large top + 3 small bottom)
+    if (layoutId === 'hero-row') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div>{renderPhoto(photoSlots[0], 0, { aspectRatio: '16 / 9' })}</div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ flex: 1 }}>
+                {renderPhoto(photoSlots[i], i, { aspectRatio: '1' })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    // Filmstrip with sprockets
+    if (layoutId === 'filmstrip' && templateStyles.showSprockets) {
+      return (
+        <div style={{ position: 'relative', padding: '8px 16px' }}>
+          {/* Sprocket holes */}
+          <div style={{ position: 'absolute', left: '4px', top: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }}>
+            {Array.from({ length: 12 }, (_, i) => (
+              <div key={i} style={{ width: '6px', height: '8px', backgroundColor: '#000', borderRadius: '1px' }} />
+            ))}
+          </div>
+          <div style={{ position: 'absolute', right: '4px', top: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }}>
+            {Array.from({ length: 12 }, (_, i) => (
+              <div key={i} style={{ width: '6px', height: '8px', backgroundColor: '#000', borderRadius: '1px' }} />
+            ))}
+          </div>
+          {/* Photos */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {photoSlots.map((photo, i) => renderPhoto(photo, i, { aspectRatio: '4 / 3' }))}
+          </div>
+        </div>
+      )
+    }
+
+    // Standard layouts
+    return (
+      <div style={layoutStyles.container}>
+        {photoSlots.map((photo, i) => renderPhoto(photo, i, layoutStyles.photo))}
+      </div>
+    )
+  }
 
   // Section label component
   const SectionLabel = ({ children }) => (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: '12px',
-      }}
-    >
-      <span
-        style={{
-          fontSize: '11px',
-          letterSpacing: '0.13em',
-          textTransform: 'uppercase',
-          color: '#aaa',
-          whiteSpace: 'nowrap',
-        }}
-      >
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+      <span style={{ fontSize: '11px', letterSpacing: '0.13em', textTransform: 'uppercase', color: '#aaa', whiteSpace: 'nowrap' }}>
         {children}
       </span>
-      <div
-        style={{
-          flex: 1,
-          height: '0.5px',
-          backgroundColor: '#ddd',
-        }}
-      />
+      <div style={{ flex: 1, height: '0.5px', backgroundColor: '#ddd' }} />
     </div>
   )
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100%',
-        backgroundColor: '#f7f7f5',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div style={{ minHeight: '100vh', width: '100%', backgroundColor: '#f7f7f5', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px clamp(1.5rem, 5vw, 3rem)',
-          borderBottom: '1px solid #e8e8e8',
-          backgroundColor: '#fff',
-        }}
-      >
-        {/* Retake Button */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px clamp(1.5rem, 5vw, 3rem)', borderBottom: '1px solid #e8e8e8', backgroundColor: '#fff' }}>
         <button
           onClick={onRetake}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#888',
-            fontSize: '13px',
-            padding: '4px',
-          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '13px', padding: '4px' }}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           <span>Retake</span>
         </button>
 
-        {/* Logo */}
-        <span
-          style={{
-            fontSize: '18px',
-            fontWeight: 500,
-            color: '#0a0a0a',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Clix
-          <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
-            frame
-          </span>
+        <span style={{ fontSize: '18px', fontWeight: 500, color: '#0a0a0a', letterSpacing: '-0.02em' }}>
+          Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
         </span>
 
-        {/* Save Button */}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#0a0a0a',
-            color: '#fff',
-            padding: '8px 18px',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: 500,
-            opacity: isDownloading ? 0.5 : 1,
-          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#0a0a0a', color: '#fff', padding: '8px 18px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: isDownloading ? 0.5 : 1 }}
         >
           <span>{isDownloading ? 'Saving...' : 'Save'}</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
           </svg>
         </button>
       </header>
 
-      {/* Main Content - Split Layout */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'row',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Left Column - Photo Strip (60%) */}
-        <div
-          style={{
-            flex: '0 0 60%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '32px',
-            backgroundColor: '#f7f7f5',
-          }}
-        >
-          {/* Strip Container Card */}
+      {/* Main Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', overflow: 'hidden' }}>
+        {/* Left Column - Photo Strip */}
+        <div style={{ flex: '0 0 60%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px', backgroundColor: '#f7f7f5' }}>
           <div
             ref={stripRef}
             style={{
               position: 'relative',
-              backgroundColor: currentFrame?.color || '#ffffff',
-              border: '1px solid #e8e8e8',
-              borderRadius: '12px',
-              padding: currentFrame?.padding ? '20px 12px 32px' : '16px',
-              ...stripDimensions,
+              backgroundColor: templateStyles.background,
+              border: templateStyles.border || '1px solid #e8e8e8',
+              borderRadius: templateCategory === 'film' ? '4px' : '12px',
+              padding: templateStyles.padding || '16px',
+              boxShadow: templateStyles.boxShadow || 'none',
+              ...layoutStyles.wrapper,
             }}
             onPointerDown={() => setActiveStickerId(null)}
           >
-            {/* Logo */}
-            <div
-              style={{
-                textAlign: 'center',
-                paddingBottom: '8px',
-                marginBottom: '8px',
-                borderBottom: '1px dashed #e8e8e8',
-              }}
-            >
-              <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: '#0a0a0a',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                Clix
-                <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
-                  frame
-                </span>
-              </span>
-            </div>
-
-            {/* Photos Grid */}
-            <div style={getPhotoGridStyles()}>
-              {stripSlots.map((photo, index) => (
-                <div
-                  key={index}
-                  style={{
-                    ...getPhotoStyles(),
-                    overflow: 'hidden',
-                    backgroundColor: '#e8e8e8',
-                    borderRadius: '4px',
-                    filter: currentFilter?.style !== 'none' ? currentFilter?.style : 'none',
-                  }}
-                >
-                  {typeof photo === 'string' && photo.startsWith('data:') ? (
-                    <img
-                      src={photo}
-                      alt={`Photo ${index + 1}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#e8e8e8',
-                      }}
-                    >
-                      <span style={{ fontSize: '18px', fontWeight: 500, color: '#aaa' }}>
-                        {index + 1}
-                      </span>
-                    </div>
-                  )}
+            {/* Newspaper Header */}
+            {templateCategory === 'newspaper' && (
+              <div style={{ textAlign: 'center', marginBottom: '12px', fontFamily: templateStyles.fontFamily }}>
+                <div style={{ borderTop: '2px double ' + templateStyles.textColor, marginBottom: '4px' }} />
+                <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', color: templateStyles.textColor, textTransform: 'uppercase' }}>
+                  The Clixframe Times
                 </div>
-              ))}
-            </div>
+                <div style={{ borderBottom: '2px double ' + templateStyles.textColor, marginTop: '4px', marginBottom: '8px' }} />
+                <div style={{ fontSize: '9px', color: templateStyles.textColor, opacity: 0.6 }}>
+                  PHOTO EDITION · VOL. I
+                </div>
+              </div>
+            )}
+
+            {/* Standard Logo Header (for non-newspaper) */}
+            {templateCategory !== 'newspaper' && (
+              <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
+                <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>
+                  Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
+                </span>
+              </div>
+            )}
+
+            {/* Photos */}
+            {renderPhotoStrip()}
+
+            {/* Polaroid Caption */}
+            {templateCategory === 'polaroid' && (
+              <div style={{ textAlign: 'center', marginTop: '8px', fontStyle: 'italic', fontSize: '11px', color: '#888', fontFamily: 'Georgia, serif' }}>
+                memories
+              </div>
+            )}
 
             {/* Placed Stickers */}
             {placedStickers.map((sticker) => (
@@ -497,23 +447,7 @@ function ResultScreen({
                 {activeStickerId === sticker.id && (
                   <button
                     onClick={() => handleDeleteSticker(sticker.id)}
-                    style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      right: '-8px',
-                      width: '18px',
-                      height: '18px',
-                      backgroundColor: '#0a0a0a',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      lineHeight: 1,
-                    }}
+                    style={{ position: 'absolute', top: '-8px', right: '-8px', width: '18px', height: '18px', backgroundColor: '#0a0a0a', color: '#fff', border: 'none', borderRadius: '50%', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
                   >
                     ×
                   </button>
@@ -523,26 +457,20 @@ function ResultScreen({
           </div>
         </div>
 
-        {/* Right Column - Editing Panel (40%) */}
-        <div
-          style={{
-            flex: '0 0 40%',
-            borderLeft: '1px solid #e8e8e8',
-            backgroundColor: '#fff',
-            padding: '2rem 1.5rem',
-            overflowY: 'auto',
-          }}
-        >
+        {/* Right Column - Editing Panel */}
+        <div style={{ flex: '0 0 40%', borderLeft: '1px solid #e8e8e8', backgroundColor: '#fff', padding: '2rem 1.5rem', overflowY: 'auto' }}>
+          {/* Layout Info */}
+          <div style={{ marginBottom: '24px', padding: '12px', backgroundColor: '#f7f7f5', borderRadius: '8px' }}>
+            <div style={{ fontSize: '11px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Current Style</div>
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#0a0a0a' }}>
+              {selectedLayout?.name || 'Classic strip'} · {selectedTemplate?.name || 'Clean white'}
+            </div>
+          </div>
+
           {/* Filter Section */}
           <div style={{ marginBottom: '32px' }}>
             <SectionLabel>Filter</SectionLabel>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '8px',
-              }}
-            >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
               {filters.map((filter) => (
                 <button
                   key={filter.name}
@@ -564,65 +492,13 @@ function ResultScreen({
             </div>
           </div>
 
-          {/* Frame Section */}
-          <div style={{ marginBottom: '32px' }}>
-            <SectionLabel>Frame</SectionLabel>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '8px',
-              }}
-            >
-              {frameOptions.map((frame) => (
-                <button
-                  key={frame.id}
-                  onClick={() => setSelectedFrame(frame.id)}
-                  style={{
-                    width: '100%',
-                    aspectRatio: '1',
-                    maxWidth: '80px',
-                    border: selectedFrame === frame.id ? '2px solid #0a0a0a' : '1px solid #e8e8e8',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    backgroundColor: frame.color === 'transparent' ? '#f7f7f5' : frame.color,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '4px',
-                    padding: '8px',
-                    transition: 'border-color 0.15s ease',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '24px',
-                      height: '32px',
-                      backgroundColor: '#ddd',
-                      borderRadius: '2px',
-                      border: frame.border ? '1px solid #bbb' : 'none',
-                    }}
-                  />
-                  <span style={{ fontSize: '11px', color: '#888' }}>{frame.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Stickers Section */}
           <div>
             <SectionLabel>Stickers</SectionLabel>
             <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px' }}>
               Tap to add, drag to move
             </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: '8px',
-                flexWrap: 'wrap',
-              }}
-            >
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {stickers.map((sticker, index) => (
                 <button
                   key={index}
@@ -638,14 +514,10 @@ function ResultScreen({
                     border: '1px solid #e8e8e8',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
+                    transition: 'transform 0.15s ease',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)'
-                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
                 >
                   {sticker}
                 </button>

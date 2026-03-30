@@ -10,7 +10,13 @@ const sectionLabels = {
   film: 'Film',
 }
 
-function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-white' }) {
+function TemplateSelectionPage({
+  onContinue,
+  onBack,
+  initialSelection = 'clean-white',
+  currentStep = 1,
+  totalSteps = 3,
+}) {
   const [selectedTemplate, setSelectedTemplate] = useState(initialSelection)
 
   const handleContinue = () => {
@@ -18,7 +24,12 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
     onContinue(template)
   }
 
-  const selectedTemplateName = allTemplates.find((t) => t.id === selectedTemplate)?.name || ''
+  const selectedTemplateData = allTemplates.find((t) => t.id === selectedTemplate)
+  const selectedTemplateName = selectedTemplateData?.name || ''
+  const needsLayout = selectedTemplateData?.needsLayout !== false
+
+  // Button text changes based on whether template needs layout selection
+  const buttonText = needsLayout ? 'Choose layout →' : 'Start camera →'
 
   return (
     <div
@@ -30,49 +41,8 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
     >
       {/* Header */}
       <header style={{ paddingTop: '24px', paddingBottom: '16px' }}>
-        {/* Back Arrow + Logo */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            marginBottom: '16px',
-          }}
-        >
-          {/* Back Arrow */}
-          <button
-            onClick={onBack}
-            style={{
-              position: 'absolute',
-              left: 0,
-              padding: '4px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              color: '#888',
-              fontSize: '13px',
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            <span>Back</span>
-          </button>
-
-          {/* Logo */}
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <span
             style={{
               fontSize: '18px',
@@ -90,7 +60,7 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
 
         {/* Progress Bar */}
         <div style={{ marginBottom: '24px' }}>
-          <ProgressBar currentStep={2} totalSteps={3} />
+          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
         </div>
 
         {/* Title */}
@@ -232,7 +202,7 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
             cursor: 'pointer',
           }}
         >
-          Continue to camera
+          {buttonText}
         </button>
         <p
           style={{
@@ -243,6 +213,9 @@ function TemplateSelectionPage({ onContinue, onBack, initialSelection = 'clean-w
           }}
         >
           {selectedTemplateName} selected
+          {!needsLayout && selectedTemplateData?.fixedPhotos && (
+            <span> · {selectedTemplateData.fixedPhotos} photo{selectedTemplateData.fixedPhotos > 1 ? 's' : ''}</span>
+          )}
         </p>
       </footer>
     </div>

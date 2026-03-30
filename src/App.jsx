@@ -1,22 +1,25 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import LandingPage from './components/landing/LandingPage'
-import LayoutSelectionPage from './components/templates/LayoutSelectionPage'
 import TemplateSelectionPage from './components/templates/TemplateSelectionPage'
+import LayoutSelectionPage from './components/templates/LayoutSelectionPage'
 import CameraScreen from './components/CameraScreen'
 import ResultScreen from './components/ResultScreen'
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('landing') // Start with landing page
+  const [currentScreen, setCurrentScreen] = useState('landing')
   const [photoNumber, setPhotoNumber] = useState(1)
   const [countdown, setCountdown] = useState(3)
   const [capturedPhotos, setCapturedPhotos] = useState([])
   const [isCapturing, setIsCapturing] = useState(false)
-  const [isPaused, setIsPaused] = useState(false) // Pause between shots
-  const [selectedLayout, setSelectedLayout] = useState(null)
+  const [isPaused, setIsPaused] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [selectedLayout, setSelectedLayout] = useState(null)
 
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
+
+  // Get total photos - from layout if available, else from template's fixed count, else 4
+  const totalPhotos = selectedLayout?.photos || selectedTemplate?.fixedPhotos || 4
 
   // Set video ref from CameraScreen
   const setVideoElement = useCallback((videoElement) => {
@@ -32,18 +35,15 @@ function App() {
 
     if (!canvas) return null
 
-    // Set canvas size to match video
     canvas.width = video.videoWidth || 640
     canvas.height = video.videoHeight || 480
 
     const ctx = canvas.getContext('2d')
 
-    // Flip horizontally to match mirror view
     ctx.translate(canvas.width, 0)
     ctx.scale(-1, 1)
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-    // Reset transform
     ctx.setTransform(1, 0, 0, 1, 0, 0)
 
     return canvas.toDataURL('image/jpeg', 0.9)
@@ -59,66 +59,76 @@ function App() {
           return prev - 1
         }
 
-        // Countdown reached 0, capture photo
         const photoData = capturePhoto()
 
         setCapturedPhotos((prevPhotos) => {
           const newPhotos = [...prevPhotos, photoData]
 
-          // Check if we've captured all 4 photos
-          if (newPhotos.length >= 4) {
-            // Stop capturing and go to result screen
+          if (newPhotos.length >= totalPhotos) {
             setIsCapturing(false)
             setTimeout(() => {
               setCurrentScreen('result')
-            }, 800) // Brief delay to show the last capture
+            }, 800)
           } else {
-            // Pause between shots - show "Get Ready" message
             setIsPaused(true)
             setTimeout(() => {
               setIsPaused(false)
               setCountdown(3)
-            }, 2000) // 2 second pause between shots
+            }, 2000)
           }
 
           return newPhotos
         })
 
         setPhotoNumber((currentPhoto) => {
-          if (currentPhoto < 4) {
+          if (currentPhoto < totalPhotos) {
             return currentPhoto + 1
           }
-          return currentPhoto // Stay at 4, don't reset
+          return currentPhoto
         })
 
-        return prev // Keep current value during pause
+        return prev
       })
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [currentScreen, isCapturing, isPaused, capturePhoto])
+  }, [currentScreen, isCapturing, isPaused, capturePhoto, totalPhotos])
 
   // Stop countdown when all photos captured
   useEffect(() => {
-    if (capturedPhotos.length >= 4) {
+    if (capturedPhotos.length >= totalPhotos) {
       setIsCapturing(false)
     }
-  }, [capturedPhotos.length])
+  }, [capturedPhotos.length, totalPhotos])
 
-  // Navigate from landing to layout selection
+  // Navigate from landing to template selection (Step 1)
   const handleStartFromLanding = () => {
-    setCurrentScreen('layout')
-  }
-
-  // Navigate from layout selection to template selection
-  const handleSelectLayout = (layout) => {
-    setSelectedLayout(layout)
     setCurrentScreen('template')
   }
 
-  // Navigate from template selection to camera
+  // Navigate from template selection
   const handleSelectTemplate = (template) => {
     setSelectedTemplate(template)
+
+    // If template needs layout selection, go to layout page
+    // Otherwise, go directly to camera
+    if (template.needsLayout) {
+      setCurrentScreen('layout')
+    } else {
+      // Template has fixed layout - go directly to camera
+      setSelectedLayout(null) // Clear any previous layout
+      startCamera()
+    }
+  }
+
+  // Navigate from layout selection to camera
+  const handleSelectLayout = (layout) => {
+    setSelectedLayout(layout)
+    startCamera()
+  }
+
+  // Start camera with reset state
+  const startCamera = () => {
     setPhotoNumber(1)
     setCountdown(3)
     setCapturedPhotos([])
@@ -134,16 +144,23 @@ function App() {
     setCapturedPhotos([])
     setIsCapturing(false)
     setIsPaused(false)
-    setSelectedLayout(null)
     setSelectedTemplate(null)
-  }
-
-  const handleBackToLayout = () => {
-    setCurrentScreen('layout')
+    setSelectedLayout(null)
   }
 
   const handleBackToTemplate = () => {
     setCurrentScreen('template')
+    setSelectedLayout(null)
+  }
+
+  const handleBackToLayoutOrTemplate = () => {
+    // If template needs layout, go back to layout selection
+    // Otherwise go back to template selection
+    if (selectedTemplate?.needsLayout) {
+      setCurrentScreen('layout')
+    } else {
+      setCurrentScreen('template')
+    }
     setPhotoNumber(1)
     setCountdown(3)
     setCapturedPhotos([])
@@ -152,13 +169,11 @@ function App() {
   }
 
   const handleRetake = () => {
-    // Retake current photo - reset countdown
     setCountdown(3)
     setIsPaused(false)
   }
 
   const handleRetakeAll = () => {
-    // Go back to camera and retake all photos
     setPhotoNumber(1)
     setCountdown(3)
     setCapturedPhotos([])
@@ -167,9 +182,16 @@ function App() {
     setCurrentScreen('camera')
   }
 
+  // Determine total steps for progress bar
+  const getTotalSteps = () => {
+    if (selectedTemplate?.needsLayout === false) {
+      return 2 // Template → Camera (no layout step)
+    }
+    return 3 // Template → Layout → Camera
+  }
+
   return (
     <div className="min-h-screen w-full">
-      {/* Hidden canvas for capturing photos */}
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Landing Page */}
@@ -177,21 +199,25 @@ function App() {
         <LandingPage onStartBooth={handleStartFromLanding} />
       )}
 
-      {/* Layout Selection Screen (Step 1) */}
-      {currentScreen === 'layout' && (
-        <LayoutSelectionPage
-          onContinue={handleSelectLayout}
-          onBack={handleBackToLanding}
-          initialSelection={selectedLayout?.id || 'classic-strip'}
-        />
-      )}
-
-      {/* Template Selection Screen (Step 2) */}
+      {/* Template Selection Screen (Step 1) */}
       {currentScreen === 'template' && (
         <TemplateSelectionPage
           onContinue={handleSelectTemplate}
-          onBack={handleBackToLayout}
+          onBack={handleBackToLanding}
           initialSelection={selectedTemplate?.id || 'clean-white'}
+          currentStep={1}
+          totalSteps={3}
+        />
+      )}
+
+      {/* Layout Selection Screen (Step 2 - only for templates that need it) */}
+      {currentScreen === 'layout' && (
+        <LayoutSelectionPage
+          onContinue={handleSelectLayout}
+          onBack={handleBackToTemplate}
+          initialSelection={selectedLayout?.id || 'classic-strip'}
+          currentStep={2}
+          totalSteps={3}
         />
       )}
 
@@ -201,13 +227,14 @@ function App() {
           {currentScreen === 'camera' && (
             <CameraScreen
               photoNumber={photoNumber}
-              totalPhotos={4}
+              totalPhotos={totalPhotos}
               countdown={countdown}
               isCapturing={isCapturing}
               isPaused={isPaused}
               onRetake={handleRetake}
-              onCancel={handleBackToTemplate}
+              onCancel={handleBackToLayoutOrTemplate}
               onVideoRef={setVideoElement}
+              selectedLayout={selectedLayout}
               selectedTemplate={selectedTemplate}
             />
           )}
@@ -216,6 +243,7 @@ function App() {
             <ResultScreen
               photos={capturedPhotos}
               onRetake={handleRetakeAll}
+              selectedLayout={selectedLayout}
               selectedTemplate={selectedTemplate}
             />
           )}

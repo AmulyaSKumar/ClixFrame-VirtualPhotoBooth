@@ -3,7 +3,13 @@ import ProgressBar from './shared/ProgressBar'
 import SelectionCard from './shared/SelectionCard'
 import { layoutOptions } from './shared/LayoutPreviews'
 
-function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-strip' }) {
+function LayoutSelectionPage({
+  onContinue,
+  onBack,
+  initialSelection = 'classic-strip',
+  currentStep = 2,
+  totalSteps = 3,
+}) {
   const [selectedLayout, setSelectedLayout] = useState(initialSelection)
 
   const handleContinue = () => {
@@ -11,7 +17,9 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
     onContinue(layout)
   }
 
-  const selectedLayoutName = layoutOptions.find((l) => l.id === selectedLayout)?.name || ''
+  const selectedLayoutData = layoutOptions.find((l) => l.id === selectedLayout)
+  const selectedLayoutName = selectedLayoutData?.name || ''
+  const photoCount = selectedLayoutData?.photos || 4
 
   return (
     <div
@@ -23,8 +31,49 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
     >
       {/* Header */}
       <header style={{ paddingTop: '24px', paddingBottom: '16px' }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        {/* Back Arrow + Logo */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            marginBottom: '16px',
+          }}
+        >
+          {/* Back Arrow */}
+          <button
+            onClick={onBack}
+            style={{
+              position: 'absolute',
+              left: 0,
+              padding: '4px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: '#888',
+              fontSize: '13px',
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back</span>
+          </button>
+
+          {/* Logo */}
           <span
             style={{
               fontSize: '18px',
@@ -42,7 +91,7 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
 
         {/* Progress Bar */}
         <div style={{ marginBottom: '24px' }}>
-          <ProgressBar currentStep={1} totalSteps={3} />
+          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
         </div>
 
         {/* Title */}
@@ -53,7 +102,6 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
               fontWeight: 500,
               color: '#0a0a0a',
               letterSpacing: '-0.02em',
-              marginBottom: '4px',
               margin: 0,
             }}
           >
@@ -63,7 +111,6 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
             style={{
               fontSize: '13px',
               color: '#888',
-              marginTop: '4px',
               margin: 0,
               marginTop: '4px',
             }}
@@ -149,7 +196,7 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
             cursor: 'pointer',
           }}
         >
-          Continue →
+          Start camera →
         </button>
         <p
           style={{
@@ -159,7 +206,7 @@ function LayoutSelectionPage({ onContinue, onBack, initialSelection = 'classic-s
             marginTop: '6px',
           }}
         >
-          {selectedLayoutName} selected
+          {selectedLayoutName} selected · {photoCount} photo{photoCount > 1 ? 's' : ''}
         </p>
       </footer>
     </div>
