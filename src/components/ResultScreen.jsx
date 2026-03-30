@@ -42,7 +42,7 @@ function ResultScreen({
     if (['front-page', 'tabloid', 'dark-edition', 'gazette'].includes(templateId)) return 'newspaper'
     if (['classic-polaroid', 'scattered-duo', 'wide-polaroid', 'scattered-4'].includes(templateId)) return 'polaroid'
     if (['sprocket-film', 'vintage-film'].includes(templateId)) return 'film'
-    if (['pink-hearts', 'blue-stars', 'northern-lights', 'rainbow-frame', 'confetti-party', 'flower-garden'].includes(templateId)) return 'colorful'
+    if (['rose', 'night-sky', 'aurora', 'prism', 'mono-dark'].includes(templateId)) return 'signature'
     return 'minimal'
   }
 
@@ -181,13 +181,13 @@ function ResultScreen({
       }
     }
 
-    // Colorful templates - all have 1 photo with custom rendering
-    if (templateCategory === 'colorful') {
+    // Signature templates - all have 1 photo with elegant frames
+    if (templateCategory === 'signature') {
       return {
         container: { display: 'flex' },
         photo: { aspectRatio: '4 / 3', width: '100%' },
         wrapper: { width: '300px' },
-        isColorful: true,
+        isSignature: true,
       }
     }
 
@@ -283,36 +283,32 @@ function ResultScreen({
           showSprockets: templateId === 'sprocket-film',
           border: templateId === 'vintage-film' ? '3px solid #ccc0a8' : 'none',
         }
-      case 'colorful':
-        // Each colorful template has unique styling
-        const colorfulStyles = {
-          'pink-hearts': {
-            background: 'linear-gradient(135deg, #ffeef8 0%, #fff0f5 100%)',
-            border: '4px solid #ff69b4',
+      case 'signature':
+        // Each signature template has elegant, subtle styling
+        const signatureStyles = {
+          'rose': {
+            background: '#fff',
+            border: 'none',
+            boxShadow: '0 0 0 1px #e8d4d4, 0 4px 16px rgba(180,140,140,0.15)',
           },
-          'blue-stars': {
-            background: 'linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%)',
-            border: '4px solid #4169e1',
-          },
-          'northern-lights': {
-            background: 'linear-gradient(180deg, #0c1445 0%, #1a237e 20%, #4a148c 40%, #7b1fa2 60%, #00695c 80%, #004d40 100%)',
+          'night-sky': {
+            background: 'linear-gradient(160deg, #0d1b2a 0%, #1b263b 50%, #0d1b2a 100%)',
             border: 'none',
           },
-          'rainbow-frame': {
-            background: 'linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)',
+          'aurora': {
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #1a1a2e 100%)',
             border: 'none',
-            padding: '6px',
           },
-          'confetti-party': {
-            background: 'linear-gradient(135deg, #fff9c4 0%, #fff59d 100%)',
-            border: '4px solid #ffc107',
+          'prism': {
+            background: 'linear-gradient(135deg, rgba(255,200,200,0.2), rgba(255,230,200,0.15), rgba(255,255,200,0.12), rgba(200,255,200,0.15), rgba(200,220,255,0.2), rgba(220,200,255,0.15))',
+            border: 'none',
           },
-          'flower-garden': {
-            background: 'linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%)',
-            border: '4px solid #81c784',
+          'mono-dark': {
+            background: '#0a0a0a',
+            border: 'none',
           },
         }
-        return colorfulStyles[templateId] || { background: '#fff', border: '1px solid #e8e8e8' }
+        return signatureStyles[templateId] || { background: '#fff', border: '1px solid #e8e8e8' }
       default:
         return {
           background: '#fff',
@@ -503,172 +499,165 @@ function ResultScreen({
       }
     }
 
-    // Colorful templates - each has unique decorative frame with 1 photo
-    if (templateCategory === 'colorful') {
+    // Signature templates - elegant, premium frames with 1 photo
+    if (templateCategory === 'signature') {
       const photo = photoSlots[0]
 
-      // Pink Hearts
-      if (templateId === 'pink-hearts') {
+      // Rose - Soft pink tint with elegant border
+      if (templateId === 'rose') {
         return (
-          <div style={{ position: 'relative' }}>
-            {/* Corner hearts */}
-            <div style={{ position: 'absolute', top: '-5px', left: '5px', fontSize: '20px', zIndex: 1 }}>💕</div>
-            <div style={{ position: 'absolute', top: '-5px', right: '5px', fontSize: '20px', zIndex: 1 }}>💕</div>
-            <div style={{ position: 'absolute', bottom: '35px', left: '5px', fontSize: '20px', zIndex: 1 }}>💕</div>
-            <div style={{ position: 'absolute', bottom: '35px', right: '5px', fontSize: '20px', zIndex: 1 }}>💕</div>
-            {/* Side hearts */}
-            <div style={{ position: 'absolute', top: '50%', left: '-5px', transform: 'translateY(-50%)', fontSize: '16px', zIndex: 1 }}>💗</div>
-            <div style={{ position: 'absolute', top: '50%', right: '-5px', transform: 'translateY(-50%)', fontSize: '16px', zIndex: 1 }}>💗</div>
-
-            {/* Photo */}
-            <div style={{ marginBottom: '12px' }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%', borderRadius: '8px' })}
-            </div>
-
-            {/* Caption */}
-            <div style={{ textAlign: 'center', fontSize: '14px', color: '#d63384', fontStyle: 'italic' }}>
-              with love ♡
-            </div>
-          </div>
-        )
-      }
-
-      // Blue Stars
-      if (templateId === 'blue-stars') {
-        return (
-          <div style={{ position: 'relative' }}>
-            {/* Corner stars */}
-            <div style={{ position: 'absolute', top: '-8px', left: '5px', fontSize: '24px', zIndex: 1 }}>⭐</div>
-            <div style={{ position: 'absolute', top: '-8px', right: '5px', fontSize: '24px', zIndex: 1 }}>⭐</div>
-            <div style={{ position: 'absolute', bottom: '30px', left: '5px', fontSize: '24px', zIndex: 1 }}>⭐</div>
-            <div style={{ position: 'absolute', bottom: '30px', right: '5px', fontSize: '24px', zIndex: 1 }}>⭐</div>
-            {/* Small sparkles */}
-            <div style={{ position: 'absolute', top: '30%', left: '-8px', fontSize: '14px', zIndex: 1 }}>✨</div>
-            <div style={{ position: 'absolute', top: '60%', right: '-8px', fontSize: '14px', zIndex: 1 }}>✨</div>
-
-            {/* Photo */}
-            <div style={{ marginBottom: '12px' }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%', borderRadius: '8px' })}
-            </div>
-
-            {/* Caption */}
-            <div style={{ textAlign: 'center', fontSize: '14px', color: '#4169e1', fontWeight: 600 }}>
-              shine bright ★
-            </div>
-          </div>
-        )
-      }
-
-      // Northern Lights
-      if (templateId === 'northern-lights') {
-        return (
-          <div style={{ position: 'relative' }}>
-            {/* Aurora waves effect */}
+          <div style={{
+            background: 'linear-gradient(145deg, #faf6f6 0%, #f8f2f2 100%)',
+            borderRadius: '6px',
+            padding: '12px',
+          }}>
+            {/* Photo area with soft pink border */}
             <div style={{
-              position: 'absolute',
-              top: '-10px',
-              left: 0,
-              right: 0,
-              height: '30px',
-              background: 'linear-gradient(90deg, transparent, rgba(0,255,128,0.4), rgba(0,200,255,0.4), transparent)',
-              filter: 'blur(8px)',
-              zIndex: 1,
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: '10px',
-              left: 0,
-              right: 0,
-              height: '20px',
-              background: 'linear-gradient(90deg, transparent, rgba(255,0,255,0.3), rgba(0,255,200,0.3), transparent)',
-              filter: 'blur(6px)',
-              zIndex: 1,
-            }} />
-
-            {/* Photo */}
-            <div style={{ marginTop: '20px', marginBottom: '12px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
+              backgroundColor: '#fdfafa',
+              borderRadius: '4px',
+              border: '1px solid #e8d0d0',
+              overflow: 'hidden',
+              marginBottom: '12px',
+            }}>
               {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
             </div>
 
-            {/* Caption */}
-            <div style={{ textAlign: 'center', fontSize: '14px', color: '#b2dfdb', fontStyle: 'italic' }}>
-              ✦ aurora dreams ✦
-            </div>
+            {/* Subtle accent line */}
+            <div style={{
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent, #d4a5a5, transparent)',
+              borderRadius: '1px',
+            }} />
           </div>
         )
       }
 
-      // Rainbow Frame
-      if (templateId === 'rainbow-frame') {
+      // Night Sky - Deep blue/black gradient
+      if (templateId === 'night-sky') {
         return (
-          <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '12px' }}>
-            {/* Photo with pastel background */}
+          <div style={{ position: 'relative' }}>
+            {/* Subtle star dots */}
+            <div style={{ position: 'absolute', top: '8px', left: '15px', width: '3px', height: '3px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: '20px', right: '25px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: '50%', zIndex: 1 }} />
+            <div style={{ position: 'absolute', bottom: '40px', left: '25px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.35)', borderRadius: '50%', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: '50px', right: '15px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: '50%', zIndex: 1 }} />
+
+            {/* Photo area */}
             <div style={{
-              background: 'linear-gradient(45deg, #ffe0e0, #ffe0ff, #e0e0ff, #e0ffff, #e0ffe0, #ffffe0)',
-              borderRadius: '8px',
-              padding: '8px',
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              borderRadius: '4px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              overflow: 'hidden',
               marginBottom: '12px',
             }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%', borderRadius: '6px' })}
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
             </div>
 
-            {/* Rainbow emoji row */}
-            <div style={{ textAlign: 'center', fontSize: '18px', letterSpacing: '4px' }}>
-              🌈✨🌈
-            </div>
-          </div>
-        )
-      }
-
-      // Confetti Party
-      if (templateId === 'confetti-party') {
-        return (
-          <div style={{ position: 'relative' }}>
-            {/* Confetti decorations */}
-            <div style={{ position: 'absolute', top: '-5px', left: '15px', fontSize: '18px', zIndex: 1 }}>🎊</div>
-            <div style={{ position: 'absolute', top: '-5px', right: '20px', fontSize: '16px', zIndex: 1 }}>🎉</div>
-            <div style={{ position: 'absolute', top: '25px', left: '0px', fontSize: '10px', color: '#e91e63', zIndex: 1 }}>●</div>
-            <div style={{ position: 'absolute', top: '20px', right: '5px', fontSize: '10px', color: '#2196f3', zIndex: 1 }}>●</div>
-            <div style={{ position: 'absolute', bottom: '50px', left: '5px', fontSize: '10px', color: '#4caf50', zIndex: 1 }}>●</div>
-            <div style={{ position: 'absolute', bottom: '45px', right: '10px', fontSize: '10px', color: '#9c27b0', zIndex: 1 }}>●</div>
-            <div style={{ position: 'absolute', bottom: '25px', left: '20px', fontSize: '18px', zIndex: 1 }}>🎈</div>
-            <div style={{ position: 'absolute', bottom: '28px', right: '15px', fontSize: '18px', zIndex: 1 }}>🎀</div>
-
-            {/* Photo */}
-            <div style={{ backgroundColor: '#fff', border: '3px dashed #ff9800', borderRadius: '8px', padding: '6px', marginBottom: '12px' }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%', borderRadius: '4px' })}
-            </div>
-
-            {/* Caption */}
-            <div style={{ textAlign: 'center', fontSize: '14px', color: '#e65100', fontWeight: 700 }}>
-              🎉 PARTY TIME! 🎉
+            {/* Bottom label */}
+            <div style={{
+              textAlign: 'center',
+              fontSize: '10px',
+              color: 'rgba(255,255,255,0.4)',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+            }}>
+              Night Sky
             </div>
           </div>
         )
       }
 
-      // Flower Garden
-      if (templateId === 'flower-garden') {
+      // Aurora - Smooth green-purple gradient (muted)
+      if (templateId === 'aurora') {
         return (
           <div style={{ position: 'relative' }}>
-            {/* Flower decorations */}
-            <div style={{ position: 'absolute', top: '-8px', left: '10px', fontSize: '20px', zIndex: 1 }}>🌸</div>
-            <div style={{ position: 'absolute', top: '-5px', right: '15px', fontSize: '18px', zIndex: 1 }}>🌺</div>
-            <div style={{ position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)', fontSize: '18px', zIndex: 1 }}>🌼</div>
-            <div style={{ position: 'absolute', bottom: '25px', left: '15px', fontSize: '18px', zIndex: 1 }}>🌷</div>
-            <div style={{ position: 'absolute', bottom: '28px', right: '10px', fontSize: '20px', zIndex: 1 }}>🌻</div>
-            <div style={{ position: 'absolute', bottom: '25px', left: '50%', transform: 'translateX(-50%)', fontSize: '18px', zIndex: 1 }}>🌹</div>
-            <div style={{ position: 'absolute', top: '50%', left: '-5px', transform: 'translateY(-50%)', fontSize: '14px', zIndex: 1 }}>🍃</div>
-            <div style={{ position: 'absolute', top: '50%', right: '-5px', transform: 'translateY(-50%)', fontSize: '14px', zIndex: 1 }}>🍃</div>
+            {/* Aurora gradient overlay - subtle */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '40px',
+              background: 'linear-gradient(180deg, rgba(72,118,115,0.2) 0%, transparent 100%)',
+              borderRadius: '4px 4px 0 0',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }} />
 
-            {/* Photo */}
-            <div style={{ backgroundColor: '#fff', border: '3px solid #a5d6a7', borderRadius: '8px', padding: '6px', marginBottom: '12px' }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%', borderRadius: '4px' })}
+            {/* Photo area */}
+            <div style={{
+              backgroundColor: 'rgba(255,255,255,0.05)',
+              borderRadius: '4px',
+              border: '1px solid rgba(120,150,140,0.25)',
+              overflow: 'hidden',
+              marginBottom: '12px',
+            }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
             </div>
 
-            {/* Caption */}
-            <div style={{ textAlign: 'center', fontSize: '14px', color: '#388e3c', fontStyle: 'italic' }}>
-              bloom & grow 🌿
+            {/* Subtle gradient accent */}
+            <div style={{
+              height: '2px',
+              background: 'linear-gradient(90deg, rgba(72,118,115,0.4), rgba(88,80,120,0.4), rgba(72,118,115,0.4))',
+              borderRadius: '1px',
+            }} />
+          </div>
+        )
+      }
+
+      // Prism - Very subtle rainbow edge glow
+      if (templateId === 'prism') {
+        return (
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '6px',
+            padding: '12px',
+          }}>
+            {/* Photo area */}
+            <div style={{
+              backgroundColor: '#fafafa',
+              borderRadius: '4px',
+              border: '1px solid #eee',
+              overflow: 'hidden',
+              marginBottom: '12px',
+            }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Subtle prismatic line */}
+            <div style={{
+              height: '2px',
+              background: 'linear-gradient(90deg, rgba(255,180,180,0.5), rgba(255,220,180,0.5), rgba(255,255,180,0.5), rgba(180,255,180,0.5), rgba(180,200,255,0.5), rgba(200,180,255,0.5))',
+              borderRadius: '1px',
+            }} />
+          </div>
+        )
+      }
+
+      // Mono Dark - Clean black frame
+      if (templateId === 'mono-dark') {
+        return (
+          <div>
+            {/* Photo area */}
+            <div style={{
+              backgroundColor: '#1a1a1a',
+              borderRadius: '4px',
+              border: '1px solid #2a2a2a',
+              overflow: 'hidden',
+              marginBottom: '12px',
+            }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Bottom accent */}
+            <div style={{
+              textAlign: 'center',
+              fontSize: '10px',
+              color: '#4a4a4a',
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+            }}>
+              Mono
             </div>
           </div>
         )
@@ -785,7 +774,7 @@ function ResultScreen({
               position: 'relative',
               backgroundColor: templateStyles.background,
               border: templateStyles.border || '1px solid #e8e8e8',
-              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : templateCategory === 'colorful' ? '16px' : '12px',
+              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : templateCategory === 'signature' ? '8px' : '12px',
               padding: templateStyles.padding || '16px',
               boxShadow: templateStyles.boxShadow || (templateCategory === 'newspaper' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'),
               ...layoutStyles.wrapper,
@@ -793,7 +782,7 @@ function ResultScreen({
             onPointerDown={() => setActiveStickerId(null)}
           >
             {/* Standard Logo Header (for minimal, polaroid, film templates only) */}
-            {templateCategory !== 'newspaper' && templateCategory !== 'colorful' && (
+            {templateCategory !== 'newspaper' && templateCategory !== 'signature' && (
               <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
                 <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>
                   Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>

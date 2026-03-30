@@ -8,7 +8,7 @@ const sectionLabels = {
   newspaper: 'Newspaper',
   polaroid: 'Polaroid',
   film: 'Film',
-  colorful: 'Colorful',
+  signature: 'Signature',
 }
 
 function TemplateSelectionPage({
