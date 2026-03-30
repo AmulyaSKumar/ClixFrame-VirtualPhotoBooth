@@ -42,7 +42,6 @@ function ResultScreen({
     if (['front-page', 'tabloid', 'dark-edition', 'gazette'].includes(templateId)) return 'newspaper'
     if (['classic-polaroid', 'scattered-duo', 'wide-polaroid', 'scattered-4'].includes(templateId)) return 'polaroid'
     if (['sprocket-film', 'vintage-film'].includes(templateId)) return 'film'
-    if (['rose', 'night-sky', 'aurora', 'prism', 'mono-dark'].includes(templateId)) return 'signature'
     return 'minimal'
   }
 
@@ -181,16 +180,6 @@ function ResultScreen({
       }
     }
 
-    // Signature templates - all have 1 photo with elegant frames
-    if (templateCategory === 'signature') {
-      return {
-        container: { display: 'flex' },
-        photo: { aspectRatio: '4 / 3', width: '100%' },
-        wrapper: { width: '300px' },
-        isSignature: true,
-      }
-    }
-
     switch (layoutId) {
       case 'classic-strip':
         return {
@@ -283,32 +272,6 @@ function ResultScreen({
           showSprockets: templateId === 'sprocket-film',
           border: templateId === 'vintage-film' ? '3px solid #ccc0a8' : 'none',
         }
-      case 'signature':
-        // Each signature template has elegant, subtle styling
-        const signatureStyles = {
-          'rose': {
-            background: '#fff',
-            border: 'none',
-            boxShadow: '0 0 0 1px #e8d4d4, 0 4px 16px rgba(180,140,140,0.15)',
-          },
-          'night-sky': {
-            background: 'linear-gradient(160deg, #0d1b2a 0%, #1b263b 50%, #0d1b2a 100%)',
-            border: 'none',
-          },
-          'aurora': {
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #1a1a2e 100%)',
-            border: 'none',
-          },
-          'prism': {
-            background: 'linear-gradient(135deg, rgba(255,200,200,0.2), rgba(255,230,200,0.15), rgba(255,255,200,0.12), rgba(200,255,200,0.15), rgba(200,220,255,0.2), rgba(220,200,255,0.15))',
-            border: 'none',
-          },
-          'mono-dark': {
-            background: '#0a0a0a',
-            border: 'none',
-          },
-        }
-        return signatureStyles[templateId] || { background: '#fff', border: '1px solid #e8e8e8' }
       default:
         return {
           background: '#fff',
@@ -499,171 +462,6 @@ function ResultScreen({
       }
     }
 
-    // Signature templates - elegant, premium frames with 1 photo
-    if (templateCategory === 'signature') {
-      const photo = photoSlots[0]
-
-      // Rose - Soft pink tint with elegant border
-      if (templateId === 'rose') {
-        return (
-          <div style={{
-            background: 'linear-gradient(145deg, #faf6f6 0%, #f8f2f2 100%)',
-            borderRadius: '6px',
-            padding: '12px',
-          }}>
-            {/* Photo area with soft pink border */}
-            <div style={{
-              backgroundColor: '#fdfafa',
-              borderRadius: '4px',
-              border: '1px solid #e8d0d0',
-              overflow: 'hidden',
-              marginBottom: '12px',
-            }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
-            </div>
-
-            {/* Subtle accent line */}
-            <div style={{
-              height: '2px',
-              background: 'linear-gradient(90deg, transparent, #d4a5a5, transparent)',
-              borderRadius: '1px',
-            }} />
-          </div>
-        )
-      }
-
-      // Night Sky - Deep blue/black gradient
-      if (templateId === 'night-sky') {
-        return (
-          <div style={{ position: 'relative' }}>
-            {/* Subtle star dots */}
-            <div style={{ position: 'absolute', top: '8px', left: '15px', width: '3px', height: '3px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', zIndex: 1 }} />
-            <div style={{ position: 'absolute', top: '20px', right: '25px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: '50%', zIndex: 1 }} />
-            <div style={{ position: 'absolute', bottom: '40px', left: '25px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.35)', borderRadius: '50%', zIndex: 1 }} />
-            <div style={{ position: 'absolute', top: '50px', right: '15px', width: '2px', height: '2px', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: '50%', zIndex: 1 }} />
-
-            {/* Photo area */}
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.04)',
-              borderRadius: '4px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              overflow: 'hidden',
-              marginBottom: '12px',
-            }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
-            </div>
-
-            {/* Bottom label */}
-            <div style={{
-              textAlign: 'center',
-              fontSize: '10px',
-              color: 'rgba(255,255,255,0.4)',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-            }}>
-              Night Sky
-            </div>
-          </div>
-        )
-      }
-
-      // Aurora - Smooth green-purple gradient (muted)
-      if (templateId === 'aurora') {
-        return (
-          <div style={{ position: 'relative' }}>
-            {/* Aurora gradient overlay - subtle */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '40px',
-              background: 'linear-gradient(180deg, rgba(72,118,115,0.2) 0%, transparent 100%)',
-              borderRadius: '4px 4px 0 0',
-              zIndex: 1,
-              pointerEvents: 'none',
-            }} />
-
-            {/* Photo area */}
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.05)',
-              borderRadius: '4px',
-              border: '1px solid rgba(120,150,140,0.25)',
-              overflow: 'hidden',
-              marginBottom: '12px',
-            }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
-            </div>
-
-            {/* Subtle gradient accent */}
-            <div style={{
-              height: '2px',
-              background: 'linear-gradient(90deg, rgba(72,118,115,0.4), rgba(88,80,120,0.4), rgba(72,118,115,0.4))',
-              borderRadius: '1px',
-            }} />
-          </div>
-        )
-      }
-
-      // Prism - Very subtle rainbow edge glow
-      if (templateId === 'prism') {
-        return (
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '6px',
-            padding: '12px',
-          }}>
-            {/* Photo area */}
-            <div style={{
-              backgroundColor: '#fafafa',
-              borderRadius: '4px',
-              border: '1px solid #eee',
-              overflow: 'hidden',
-              marginBottom: '12px',
-            }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
-            </div>
-
-            {/* Subtle prismatic line */}
-            <div style={{
-              height: '2px',
-              background: 'linear-gradient(90deg, rgba(255,180,180,0.5), rgba(255,220,180,0.5), rgba(255,255,180,0.5), rgba(180,255,180,0.5), rgba(180,200,255,0.5), rgba(200,180,255,0.5))',
-              borderRadius: '1px',
-            }} />
-          </div>
-        )
-      }
-
-      // Mono Dark - Clean black frame
-      if (templateId === 'mono-dark') {
-        return (
-          <div>
-            {/* Photo area */}
-            <div style={{
-              backgroundColor: '#1a1a1a',
-              borderRadius: '4px',
-              border: '1px solid #2a2a2a',
-              overflow: 'hidden',
-              marginBottom: '12px',
-            }}>
-              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
-            </div>
-
-            {/* Bottom accent */}
-            <div style={{
-              textAlign: 'center',
-              fontSize: '10px',
-              color: '#4a4a4a',
-              letterSpacing: '0.25em',
-              textTransform: 'uppercase',
-            }}>
-              Mono
-            </div>
-          </div>
-        )
-      }
-    }
-
     // Special layout: big-plus-two (1 large + 2 small)
     if (layoutId === 'big-plus-two') {
       return (
@@ -774,7 +572,7 @@ function ResultScreen({
               position: 'relative',
               backgroundColor: templateStyles.background,
               border: templateStyles.border || '1px solid #e8e8e8',
-              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : templateCategory === 'signature' ? '8px' : '12px',
+              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : '12px',
               padding: templateStyles.padding || '16px',
               boxShadow: templateStyles.boxShadow || (templateCategory === 'newspaper' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'),
               ...layoutStyles.wrapper,
@@ -782,7 +580,7 @@ function ResultScreen({
             onPointerDown={() => setActiveStickerId(null)}
           >
             {/* Standard Logo Header (for minimal, polaroid, film templates only) */}
-            {templateCategory !== 'newspaper' && templateCategory !== 'signature' && (
+            {templateCategory !== 'newspaper' && (
               <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
                 <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>
                   Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>

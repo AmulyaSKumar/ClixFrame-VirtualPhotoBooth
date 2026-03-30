@@ -356,30 +356,23 @@ function CameraScreen({
                 />
               )}
 
-              {/* Countdown Overlay - Centered with backdrop */}
+              {/* Countdown - Top Right */}
               {isCapturing && !isPaused && !allPhotosDone && (
                 <div
                   key={countdownKey}
                   style={{
                     position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '120px',
-                    height: '120px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                    borderRadius: '50%',
+                    top: '16px',
+                    right: '16px',
                     animation: 'fadeIn 0.2s ease',
                   }}
                 >
                   <span
                     style={{
-                      fontSize: 'clamp(80px, 15vw, 120px)',
-                      fontWeight: 300,
+                      fontSize: '48px',
+                      fontWeight: 600,
                       color: '#fff',
+                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
                       lineHeight: 1,
                     }}
                   >
@@ -420,39 +413,36 @@ function CameraScreen({
                 </div>
               )}
 
-              {/* Get Ready Overlay */}
+              {/* Get Ready - Top Right */}
               {isPaused && (
                 <div
                   style={{
                     position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                    top: '16px',
+                    right: '16px',
+                    textAlign: 'right',
                   }}
                 >
-                  <div style={{ textAlign: 'center' }}>
-                    <span
-                      style={{
-                        fontSize: '28px',
-                        fontWeight: 500,
-                        color: '#fff',
-                        display: 'block',
-                        marginBottom: '8px',
-                      }}
-                    >
-                      Get Ready!
-                    </span>
-                    <span
-                      style={{
-                        fontSize: '15px',
-                        color: 'rgba(255, 255, 255, 0.8)',
-                      }}
-                    >
-                      Photo {photoNumber} of {totalPhotos}
-                    </span>
-                  </div>
+                  <span
+                    style={{
+                      fontSize: '24px',
+                      fontWeight: 600,
+                      color: '#fff',
+                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                      display: 'block',
+                    }}
+                  >
+                    Get Ready!
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      color: '#fff',
+                      textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)',
+                    }}
+                  >
+                    Photo {photoNumber} of {totalPhotos}
+                  </span>
                 </div>
               )}
 
