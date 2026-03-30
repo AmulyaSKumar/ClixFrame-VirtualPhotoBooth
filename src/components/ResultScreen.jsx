@@ -26,7 +26,7 @@ function ResultScreen({
   // Get layout info
   const layoutId = selectedLayout?.id || 'classic-strip'
   const templateId = selectedTemplate?.id || 'clean-white'
-  const photoCount = selectedLayout?.photos || 4
+  const photoCount = selectedLayout?.photos || selectedTemplate?.fixedPhotos || 4
 
   // Create photo slots based on layout
   const photoSlots = photos.length > 0
@@ -38,7 +38,7 @@ function ResultScreen({
   // Get template category
   const getTemplateCategory = () => {
     if (['clean-white', 'thin-black', 'double-frame', 'arch-top'].includes(templateId)) return 'minimal'
-    if (['front-page', 'strip-edition', 'dark-edition', 'gazette'].includes(templateId)) return 'newspaper'
+    if (['front-page', 'tabloid', 'dark-edition', 'gazette'].includes(templateId)) return 'newspaper'
     if (['classic-polaroid', 'scattered-duo', 'wide-polaroid', 'scattered-4'].includes(templateId)) return 'polaroid'
     if (['sprocket-film', 'vintage-film'].includes(templateId)) return 'film'
     return 'minimal'
@@ -176,6 +176,16 @@ function ResultScreen({
 
   // Get layout-specific grid styles
   const getLayoutStyles = () => {
+    // Newspaper templates - all have 1 photo with custom rendering
+    if (templateCategory === 'newspaper') {
+      return {
+        container: { display: 'flex' },
+        photo: { aspectRatio: '4 / 3', width: '100%' },
+        wrapper: { width: '280px' },
+        isNewspaper: true,
+      }
+    }
+
     switch (layoutId) {
       case 'classic-strip':
         return {
@@ -243,12 +253,17 @@ function ResultScreen({
   const getTemplateStyles = () => {
     switch (templateCategory) {
       case 'newspaper':
+        // Each newspaper template has its own background
+        let bgColor = '#fff'
+        if (templateId === 'dark-edition') bgColor = '#0a0a0a'
+        else if (templateId === 'gazette') bgColor = '#f5f0e6'
+        else if (templateId === 'front-page') bgColor = '#fdfcfa'
+
         return {
-          background: templateId === 'dark-edition' ? '#111' : '#fff',
+          background: bgColor,
           textColor: templateId === 'dark-edition' ? '#fff' : '#0a0a0a',
           fontFamily: "Georgia, 'Times New Roman', serif",
-          showHeader: true,
-          headerStyle: 'newspaper',
+          border: templateId === 'gazette' ? '2px solid #c9b99a' : templateId === 'tabloid' ? '3px solid #0a0a0a' : '1px solid #ccc',
         }
       case 'polaroid':
         return {
@@ -275,6 +290,184 @@ function ResultScreen({
 
   // Render the photo strip based on layout
   const renderPhotoStrip = () => {
+    // Newspaper templates - each has unique frame with 1 photo
+    if (templateCategory === 'newspaper') {
+      const photo = photoSlots[0]
+
+      // Front Page - Classic broadsheet
+      if (templateId === 'front-page') {
+        return (
+          <div style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            {/* Double rule top */}
+            <div style={{ borderTop: '3px double #0a0a0a', marginBottom: '4px' }} />
+
+            {/* Masthead */}
+            <div style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '0.08em', textAlign: 'center', color: '#0a0a0a', textTransform: 'uppercase' }}>
+              THE DAILY TIMES
+            </div>
+
+            {/* Double rule bottom */}
+            <div style={{ borderBottom: '3px double #0a0a0a', marginTop: '4px', marginBottom: '6px' }} />
+
+            {/* Date line */}
+            <div style={{ fontSize: '9px', color: '#666', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>Vol. CXII No. 47</span>
+              <span>PHOTO EDITION</span>
+              <span>Price: 5¢</span>
+            </div>
+
+            {/* Headline */}
+            <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'center', marginBottom: '10px', textTransform: 'uppercase' }}>
+              EXCLUSIVE PORTRAIT REVEALED
+            </div>
+
+            {/* Photo */}
+            <div style={{ marginBottom: '8px' }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Caption */}
+            <div style={{ fontSize: '10px', fontStyle: 'italic', textAlign: 'center', color: '#555', marginBottom: '10px' }}>
+              Portrait captured at the grand event — Photo by Staff
+            </div>
+
+            {/* Text columns */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ flex: 1, fontSize: '8px', color: '#444', lineHeight: 1.4 }}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </div>
+              <div style={{ flex: 1, fontSize: '8px', color: '#444', lineHeight: 1.4 }}>
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      // Tabloid - Bold modern style
+      if (templateId === 'tabloid') {
+        return (
+          <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+            {/* Red banner */}
+            <div style={{ backgroundColor: '#c00', color: '#fff', fontSize: '10px', fontWeight: 700, textAlign: 'center', padding: '4px', letterSpacing: '0.1em', marginBottom: '0' }}>
+              ★ BREAKING NEWS ★
+            </div>
+
+            {/* Masthead */}
+            <div style={{ backgroundColor: '#0a0a0a', color: '#fff', fontSize: '22px', fontWeight: 900, textAlign: 'center', padding: '6px', letterSpacing: '-0.02em' }}>
+              THE BUZZ
+            </div>
+
+            {/* Photo */}
+            <div style={{ padding: '10px 0' }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Bold headline */}
+            <div style={{ fontSize: '16px', fontWeight: 900, lineHeight: 1.1, color: '#0a0a0a', textAlign: 'center', textTransform: 'uppercase', marginBottom: '6px' }}>
+              CAUGHT ON CAMERA!
+            </div>
+
+            {/* Subhead */}
+            <div style={{ fontSize: '10px', color: '#666', textAlign: 'center', fontStyle: 'italic', marginBottom: '8px' }}>
+              Exclusive photo reveals all — see inside for more
+            </div>
+
+            {/* Bottom bar */}
+            <div style={{ backgroundColor: '#f5f5f5', fontSize: '8px', color: '#888', textAlign: 'center', padding: '4px', borderTop: '1px solid #ddd' }}>
+              www.thebuzz.com · $1.99 · Your source for the latest
+            </div>
+          </div>
+        )
+      }
+
+      // Dark Edition - Noir evening paper
+      if (templateId === 'dark-edition') {
+        return (
+          <div style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            {/* Header line */}
+            <div style={{ borderBottom: '1px solid #333', marginBottom: '8px', paddingBottom: '6px' }}>
+              <div style={{ fontSize: '9px', color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Evening Edition
+              </div>
+            </div>
+
+            {/* Masthead */}
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff', letterSpacing: '0.05em', marginBottom: '8px' }}>
+              NOIR TIMES
+            </div>
+
+            {/* Thin rule */}
+            <div style={{ borderBottom: '0.5px solid #444', marginBottom: '12px' }} />
+
+            {/* Photo */}
+            <div style={{ marginBottom: '12px' }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Caption frame */}
+            <div style={{ borderLeft: '3px solid #c00', paddingLeft: '10px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '4px' }}>
+                Shadows & Light
+              </div>
+              <div style={{ fontSize: '10px', color: '#888', lineHeight: 1.4, fontStyle: 'italic' }}>
+                A portrait emerges from the darkness, telling stories untold and secrets revealed.
+              </div>
+            </div>
+
+            {/* Bottom text */}
+            <div style={{ fontSize: '8px', color: '#555', marginTop: '12px', textAlign: 'right' }}>
+              Continued on A7...
+            </div>
+          </div>
+        )
+      }
+
+      // Gazette - Vintage old-fashioned
+      if (templateId === 'gazette') {
+        return (
+          <div style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            {/* Ornate top border */}
+            <div style={{ borderBottom: '1px solid #a08060', textAlign: 'center', padding: '4px 0', fontSize: '10px', color: '#8a7a5a', letterSpacing: '0.3em' }}>
+              ❧ ❧ ❧
+            </div>
+
+            {/* Masthead */}
+            <div style={{ fontSize: '16px', fontWeight: 700, textAlign: 'center', color: '#3a3020', padding: '8px', letterSpacing: '0.08em', fontVariant: 'small-caps' }}>
+              The Weekly Gazette
+            </div>
+
+            {/* Decorative line */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: '#a08060' }} />
+              <span style={{ fontSize: '9px', color: '#8a7a5a' }}>Est. 1892</span>
+              <div style={{ flex: 1, height: '1px', backgroundColor: '#a08060' }} />
+            </div>
+
+            {/* Photo with border */}
+            <div style={{ border: '2px solid #a08060', padding: '6px', backgroundColor: '#fff', marginBottom: '10px' }}>
+              {renderPhoto(photo, 0, { aspectRatio: '4 / 3', width: '100%' })}
+            </div>
+
+            {/* Caption */}
+            <div style={{ fontSize: '11px', fontStyle: 'italic', color: '#5a4a30', textAlign: 'center', marginBottom: '8px' }}>
+              "A Distinguished Portrait"
+            </div>
+
+            {/* Article text */}
+            <div style={{ fontSize: '9px', color: '#6a5a40', lineHeight: 1.5 }}>
+              The esteemed subject was photographed at the occasion of the annual gathering. Those in attendance remarked upon the remarkable likeness captured herein.
+            </div>
+
+            {/* Bottom ornament */}
+            <div style={{ textAlign: 'center', padding: '6px 0', fontSize: '10px', color: '#8a7a5a' }}>
+              — ✦ —
+            </div>
+          </div>
+        )
+      }
+    }
+
     // Special layout: big-plus-two (1 large + 2 small)
     if (layoutId === 'big-plus-two') {
       return (
@@ -385,28 +578,14 @@ function ResultScreen({
               position: 'relative',
               backgroundColor: templateStyles.background,
               border: templateStyles.border || '1px solid #e8e8e8',
-              borderRadius: templateCategory === 'film' ? '4px' : '12px',
+              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : '12px',
               padding: templateStyles.padding || '16px',
-              boxShadow: templateStyles.boxShadow || 'none',
+              boxShadow: templateStyles.boxShadow || (templateCategory === 'newspaper' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'),
               ...layoutStyles.wrapper,
             }}
             onPointerDown={() => setActiveStickerId(null)}
           >
-            {/* Newspaper Header */}
-            {templateCategory === 'newspaper' && (
-              <div style={{ textAlign: 'center', marginBottom: '12px', fontFamily: templateStyles.fontFamily }}>
-                <div style={{ borderTop: '2px double ' + templateStyles.textColor, marginBottom: '4px' }} />
-                <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '0.1em', color: templateStyles.textColor, textTransform: 'uppercase' }}>
-                  The Clixframe Times
-                </div>
-                <div style={{ borderBottom: '2px double ' + templateStyles.textColor, marginTop: '4px', marginBottom: '8px' }} />
-                <div style={{ fontSize: '9px', color: templateStyles.textColor, opacity: 0.6 }}>
-                  PHOTO EDITION · VOL. I
-                </div>
-              </div>
-            )}
-
-            {/* Standard Logo Header (for non-newspaper) */}
+            {/* Standard Logo Header (for non-newspaper templates) */}
             {templateCategory !== 'newspaper' && (
               <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
                 <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>

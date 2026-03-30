@@ -93,20 +93,20 @@ export function ArchTopPreview({ width = 120, height = 90 }) {
 }
 
 // ============================================
-// NEWSPAPER TEMPLATES
+// NEWSPAPER TEMPLATES (All 1 photo with newspaper text)
 // ============================================
 
-// 5. Front Page
+// 5. Front Page - Classic broadsheet style with headline and columns
 export function FrontPagePreview({ width = 120, height = 140 }) {
   return (
     <div
       style={{
         width,
         height,
-        backgroundColor: '#fff',
+        backgroundColor: '#fdfcfa',
         border: '1px solid #ccc',
         fontFamily: "Georgia, 'Times New Roman', serif",
-        padding: '4px',
+        padding: '5px',
         overflow: 'hidden',
       }}
     >
@@ -116,15 +116,15 @@ export function FrontPagePreview({ width = 120, height = 140 }) {
       {/* Masthead */}
       <div
         style={{
-          fontSize: '9px',
+          fontSize: '10px',
           fontWeight: 700,
-          letterSpacing: '0.1em',
+          letterSpacing: '0.08em',
           textAlign: 'center',
           color: '#0a0a0a',
           textTransform: 'uppercase',
         }}
       >
-        THE CLIXFRAME TIMES
+        THE DAILY TIMES
       </div>
 
       {/* Double rule bottom */}
@@ -134,215 +134,334 @@ export function FrontPagePreview({ width = 120, height = 140 }) {
       <div
         style={{
           fontSize: '5px',
-          color: '#777',
+          color: '#666',
           textAlign: 'center',
-          letterSpacing: '0.08em',
+          letterSpacing: '0.05em',
           marginBottom: '4px',
-        }}
-      >
-        PHOTO EDITION · VOL. I
-      </div>
-
-      {/* Content */}
-      <div style={{ display: 'flex', gap: '4px' }}>
-        {/* Left column - photos */}
-        <div style={{ flex: '0 0 45%', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          <PersonPlaceholder variant={0} width={48} height={38} />
-          <PersonPlaceholder variant={1} width={48} height={38} />
-        </div>
-
-        {/* Right column - text */}
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              fontSize: '7px',
-              fontWeight: 700,
-              lineHeight: 1.2,
-              color: '#0a0a0a',
-              marginBottom: '3px',
-            }}
-          >
-            Breaking News Headline Here
-          </div>
-          <div
-            style={{
-              fontSize: '5px',
-              lineHeight: 1.4,
-              color: '#555',
-            }}
-          >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// 6. Strip Edition
-export function StripEditionPreview({ width = 130, height = 90 }) {
-  return (
-    <div
-      style={{
-        width,
-        height,
-        backgroundColor: '#fff',
-        border: '1px solid #ccc',
-        fontFamily: "Georgia, 'Times New Roman', serif",
-        padding: '4px',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '5px',
-          color: '#777',
-          marginBottom: '4px',
-          borderBottom: '0.5px solid #aaa',
-          paddingBottom: '2px',
         }}
       >
-        <span>The Daily</span>
-        <span style={{ fontWeight: 700, fontSize: '7px', color: '#0a0a0a' }}>CLIXFRAME</span>
-        <span>Vol. I</span>
+        <span>Vol. CXII No. 47</span>
+        <span>PHOTO EDITION</span>
+        <span>Price: 5¢</span>
       </div>
 
-      {/* Photos */}
-      <div style={{ display: 'flex', gap: '3px', justifyContent: 'center', marginBottom: '3px' }}>
-        {[0, 1, 2, 3].map((i) => (
-          <PersonPlaceholder key={i} variant={i} width={26} height={32} />
-        ))}
-      </div>
-
-      {/* Captions */}
-      <div style={{ display: 'flex', gap: '3px', justifyContent: 'center' }}>
-        {['I', 'II', 'III', 'IV'].map((num, i) => (
-          <div
-            key={i}
-            style={{
-              width: '26px',
-              fontSize: '5px',
-              fontStyle: 'italic',
-              color: '#777',
-              textAlign: 'center',
-            }}
-          >
-            Fig. {num}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// 7. Dark Edition
-export function DarkEditionPreview({ width = 120, height = 100 }) {
-  return (
-    <div
-      style={{
-        width,
-        height,
-        backgroundColor: '#111',
-        fontFamily: "Georgia, 'Times New Roman', serif",
-        padding: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Headline */}
+      {/* Main Headline */}
       <div
         style={{
           fontSize: '8px',
           fontWeight: 700,
-          color: '#fff',
+          lineHeight: 1.1,
+          color: '#0a0a0a',
+          textAlign: 'center',
+          marginBottom: '4px',
+          textTransform: 'uppercase',
+        }}
+      >
+        EXCLUSIVE PORTRAIT
+      </div>
+
+      {/* Photo placeholder - single large */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
+        <PersonPlaceholder variant={0} width={70} height={55} />
+      </div>
+
+      {/* Caption */}
+      <div
+        style={{
+          fontSize: '5px',
+          fontStyle: 'italic',
+          color: '#555',
+          textAlign: 'center',
           marginBottom: '4px',
         }}
       >
-        Evening Edition
+        Portrait captured at the grand event
       </div>
 
-      {/* Content */}
-      <div style={{ display: 'flex', gap: '4px', flex: 1 }}>
-        <PersonPlaceholder variant={2} width={55} height={60} />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div
-            style={{
-              fontSize: '5px',
-              color: '#888',
-              lineHeight: 1.4,
-            }}
-          >
-            Lorem ipsum dolor sit amet
-          </div>
-          <PersonPlaceholder variant={3} width={40} height={28} />
+      {/* Text columns */}
+      <div style={{ display: 'flex', gap: '4px' }}>
+        <div style={{ flex: 1, fontSize: '4px', color: '#666', lineHeight: 1.3 }}>
+          Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt.
+        </div>
+        <div style={{ flex: 1, fontSize: '4px', color: '#666', lineHeight: 1.3 }}>
+          Ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation.
         </div>
       </div>
     </div>
   )
 }
 
-// 8. 3-Column Gazette
-export function GazettePreview({ width = 130, height = 110 }) {
+// 6. Tabloid - Bold modern tabloid style
+export function TabloidPreview({ width = 120, height = 140 }) {
   return (
     <div
       style={{
         width,
         height,
         backgroundColor: '#fff',
-        fontFamily: "Georgia, 'Times New Roman', serif",
+        border: '3px solid #0a0a0a',
+        fontFamily: "Arial, Helvetica, sans-serif",
         overflow: 'hidden',
       }}
     >
-      {/* Banner */}
+      {/* Red banner */}
+      <div
+        style={{
+          backgroundColor: '#c00',
+          color: '#fff',
+          fontSize: '5px',
+          fontWeight: 700,
+          textAlign: 'center',
+          padding: '2px',
+          letterSpacing: '0.1em',
+        }}
+      >
+        ★ BREAKING NEWS ★
+      </div>
+
+      {/* Masthead */}
       <div
         style={{
           backgroundColor: '#0a0a0a',
           color: '#fff',
-          fontSize: '7px',
-          fontWeight: 700,
+          fontSize: '12px',
+          fontWeight: 900,
           textAlign: 'center',
-          padding: '3px 4px',
-          letterSpacing: '0.1em',
+          padding: '3px',
+          letterSpacing: '-0.02em',
         }}
       >
-        THE CLIXFRAME GAZETTE
+        THE BUZZ
       </div>
 
-      {/* Tagline */}
+      {/* Photo - large */}
+      <div style={{ padding: '4px', backgroundColor: '#fff' }}>
+        <PersonPlaceholder variant={1} width={width - 14} height={65} />
+      </div>
+
+      {/* Bold headline */}
+      <div
+        style={{
+          fontSize: '9px',
+          fontWeight: 900,
+          lineHeight: 1.1,
+          color: '#0a0a0a',
+          textAlign: 'center',
+          padding: '0 4px',
+          textTransform: 'uppercase',
+        }}
+      >
+        CAUGHT ON CAMERA!
+      </div>
+
+      {/* Subhead */}
       <div
         style={{
           fontSize: '5px',
+          color: '#666',
+          textAlign: 'center',
+          padding: '2px 4px',
+          fontStyle: 'italic',
+        }}
+      >
+        Exclusive photo reveals all — see page 3
+      </div>
+
+      {/* Bottom bar */}
+      <div
+        style={{
+          backgroundColor: '#f5f5f5',
+          fontSize: '4px',
           color: '#888',
           textAlign: 'center',
           padding: '2px',
-          borderBottom: '0.5px solid #ddd',
+          marginTop: 'auto',
         }}
       >
-        All the moments fit to print
+        www.thebuzz.com · $1.99
+      </div>
+    </div>
+  )
+}
+
+// 7. Dark Edition - Noir evening paper style
+export function DarkEditionPreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        backgroundColor: '#0a0a0a',
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        padding: '6px',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header line */}
+      <div style={{ borderBottom: '1px solid #333', marginBottom: '4px', paddingBottom: '3px' }}>
+        <div
+          style={{
+            fontSize: '5px',
+            color: '#666',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Evening Edition
+        </div>
       </div>
 
-      {/* Columns */}
-      <div style={{ display: 'flex', gap: '3px', padding: '4px' }}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} style={{ flex: 1, textAlign: 'center' }}>
-            <PersonPlaceholder variant={i} width={34} height={42} />
-            <div
-              style={{
-                fontSize: '5px',
-                fontStyle: 'italic',
-                color: '#777',
-                marginTop: '2px',
-              }}
-            >
-              Portrait No. {i + 1}
-            </div>
-          </div>
-        ))}
+      {/* Masthead */}
+      <div
+        style={{
+          fontSize: '11px',
+          fontWeight: 700,
+          color: '#fff',
+          letterSpacing: '0.05em',
+          marginBottom: '4px',
+        }}
+      >
+        NOIR TIMES
+      </div>
+
+      {/* Thin rule */}
+      <div style={{ borderBottom: '0.5px solid #444', marginBottom: '6px' }} />
+
+      {/* Photo */}
+      <div style={{ marginBottom: '6px' }}>
+        <PersonPlaceholder variant={2} width={width - 12} height={60} />
+      </div>
+
+      {/* Caption frame */}
+      <div style={{ borderLeft: '2px solid #c00', paddingLeft: '6px' }}>
+        <div
+          style={{
+            fontSize: '7px',
+            fontWeight: 700,
+            color: '#fff',
+            lineHeight: 1.2,
+            marginBottom: '2px',
+          }}
+        >
+          Shadows & Light
+        </div>
+        <div
+          style={{
+            fontSize: '5px',
+            color: '#888',
+            lineHeight: 1.4,
+            fontStyle: 'italic',
+          }}
+        >
+          A portrait emerges from the darkness, telling stories untold.
+        </div>
+      </div>
+
+      {/* Bottom text */}
+      <div
+        style={{
+          fontSize: '4px',
+          color: '#555',
+          marginTop: '6px',
+          textAlign: 'right',
+        }}
+      >
+        Continued on A7...
+      </div>
+    </div>
+  )
+}
+
+// 8. Vintage Gazette - Old-fashioned gazette with ornate styling
+export function GazettePreview({ width = 120, height = 140 }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        backgroundColor: '#f5f0e6',
+        border: '1px solid #c9b99a',
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        overflow: 'hidden',
+      }}
+    >
+      {/* Ornate top border */}
+      <div style={{
+        borderBottom: '1px solid #a08060',
+        textAlign: 'center',
+        padding: '2px 0',
+        fontSize: '6px',
+        color: '#8a7a5a',
+        letterSpacing: '0.3em',
+      }}>
+        ❧ ❧ ❧
+      </div>
+
+      {/* Masthead */}
+      <div
+        style={{
+          fontSize: '9px',
+          fontWeight: 700,
+          textAlign: 'center',
+          color: '#3a3020',
+          padding: '4px',
+          letterSpacing: '0.08em',
+          fontVariant: 'small-caps',
+        }}
+      >
+        The Weekly Gazette
+      </div>
+
+      {/* Decorative line */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '0 8px',
+        marginBottom: '4px',
+      }}>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#a08060' }} />
+        <span style={{ fontSize: '5px', color: '#8a7a5a' }}>Est. 1892</span>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#a08060' }} />
+      </div>
+
+      {/* Photo with border */}
+      <div style={{ padding: '0 8px', marginBottom: '4px' }}>
+        <div style={{ border: '1px solid #a08060', padding: '3px', backgroundColor: '#fff' }}>
+          <PersonPlaceholder variant={3} width={width - 26} height={55} />
+        </div>
+      </div>
+
+      {/* Caption */}
+      <div
+        style={{
+          fontSize: '6px',
+          fontStyle: 'italic',
+          color: '#5a4a30',
+          textAlign: 'center',
+          padding: '0 8px',
+          marginBottom: '4px',
+        }}
+      >
+        "A Distinguished Portrait"
+      </div>
+
+      {/* Article text */}
+      <div style={{ padding: '0 8px', fontSize: '4px', color: '#6a5a40', lineHeight: 1.4 }}>
+        The esteemed subject was photographed at the occasion of the annual gathering. Those in
+        attendance remarked upon the remarkable likeness captured herein.
+      </div>
+
+      {/* Bottom ornament */}
+      <div style={{
+        textAlign: 'center',
+        padding: '3px 0',
+        fontSize: '5px',
+        color: '#8a7a5a',
+      }}>
+        — ✦ —
       </div>
     </div>
   )
@@ -608,30 +727,34 @@ export const templateOptions = {
     {
       id: 'front-page',
       name: 'Front page',
-      description: 'Classic newspaper layout',
+      description: '1 photo · Classic broadsheet',
       preview: FrontPagePreview,
-      needsLayout: true,
+      needsLayout: false,
+      fixedPhotos: 1,
     },
     {
-      id: 'strip-edition',
-      name: 'Strip edition',
-      description: 'Horizontal photo strip',
-      preview: StripEditionPreview,
-      needsLayout: true,
+      id: 'tabloid',
+      name: 'Tabloid',
+      description: '1 photo · Bold headlines',
+      preview: TabloidPreview,
+      needsLayout: false,
+      fixedPhotos: 1,
     },
     {
       id: 'dark-edition',
       name: 'Dark edition',
-      description: 'Dark themed newspaper',
+      description: '1 photo · Noir evening paper',
       preview: DarkEditionPreview,
-      needsLayout: true,
+      needsLayout: false,
+      fixedPhotos: 1,
     },
     {
       id: 'gazette',
-      name: '3-column gazette',
-      description: 'Three portrait layout',
+      name: 'Vintage gazette',
+      description: '1 photo · Old-fashioned style',
       preview: GazettePreview,
-      needsLayout: true,
+      needsLayout: false,
+      fixedPhotos: 1,
     },
   ],
   polaroid: [
