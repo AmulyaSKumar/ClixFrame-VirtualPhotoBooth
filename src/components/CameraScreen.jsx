@@ -247,7 +247,7 @@ function CameraScreen({
           {/* Camera Toggle Button */}
           <button
             onClick={toggleCamera}
-            disabled={!cameraReady || isCapturing}
+            disabled={!cameraReady}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -255,8 +255,8 @@ function CameraScreen({
               background: 'none',
               border: '1px solid #ddd',
               borderRadius: '4px',
-              cursor: cameraReady && !isCapturing ? 'pointer' : 'not-allowed',
-              color: cameraReady && !isCapturing ? '#555' : '#bbb',
+              cursor: cameraReady ? 'pointer' : 'not-allowed',
+              color: cameraReady ? '#555' : '#bbb',
               fontSize: '12px',
               padding: '6px 10px',
               transition: 'all 0.15s ease',
@@ -264,8 +264,8 @@ function CameraScreen({
             title={facingMode === 'user' ? 'Switch to back camera' : 'Switch to front camera'}
           >
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -273,12 +273,13 @@ function CameraScreen({
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-              <circle cx="12" cy="13" r="4" />
-              <path d="M17 8l-1.5 1.5" />
-              <path d="M7 8l1.5 1.5" />
+              {/* Camera flip/switch icon */}
+              <path d="M16 3h5v5" />
+              <path d="M8 21H3v-5" />
+              <path d="M21 3l-7 7" />
+              <path d="M3 21l7-7" />
             </svg>
-            <span>{facingMode === 'user' ? 'Back' : 'Front'}</span>
+            <span style={{ marginLeft: '2px' }}>{facingMode === 'user' ? 'Rear' : 'Front'}</span>
           </button>
         </div>
 
