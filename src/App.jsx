@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import LandingPage from './components/landing/LandingPage'
-import TemplateScreen from './components/templates/TemplateScreen'
+import LayoutSelectionPage from './components/templates/LayoutSelectionPage'
+import TemplateSelectionPage from './components/templates/TemplateSelectionPage'
 import CameraScreen from './components/CameraScreen'
 import ResultScreen from './components/ResultScreen'
 
@@ -11,6 +12,7 @@ function App() {
   const [capturedPhotos, setCapturedPhotos] = useState([])
   const [isCapturing, setIsCapturing] = useState(false)
   const [isPaused, setIsPaused] = useState(false) // Pause between shots
+  const [selectedLayout, setSelectedLayout] = useState(null)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   const videoRef = useRef(null)
@@ -103,8 +105,14 @@ function App() {
     }
   }, [capturedPhotos.length])
 
-  // Navigate from landing to template selection
+  // Navigate from landing to layout selection
   const handleStartFromLanding = () => {
+    setCurrentScreen('layout')
+  }
+
+  // Navigate from layout selection to template selection
+  const handleSelectLayout = (layout) => {
+    setSelectedLayout(layout)
     setCurrentScreen('template')
   }
 
@@ -126,7 +134,12 @@ function App() {
     setCapturedPhotos([])
     setIsCapturing(false)
     setIsPaused(false)
+    setSelectedLayout(null)
     setSelectedTemplate(null)
+  }
+
+  const handleBackToLayout = () => {
+    setCurrentScreen('layout')
   }
 
   const handleBackToTemplate = () => {
@@ -164,11 +177,21 @@ function App() {
         <LandingPage onStartBooth={handleStartFromLanding} />
       )}
 
-      {/* Template Selection Screen */}
-      {currentScreen === 'template' && (
-        <TemplateScreen
-          onSelectTemplate={handleSelectTemplate}
+      {/* Layout Selection Screen (Step 1) */}
+      {currentScreen === 'layout' && (
+        <LayoutSelectionPage
+          onContinue={handleSelectLayout}
           onBack={handleBackToLanding}
+          initialSelection={selectedLayout?.id || 'classic-strip'}
+        />
+      )}
+
+      {/* Template Selection Screen (Step 2) */}
+      {currentScreen === 'template' && (
+        <TemplateSelectionPage
+          onContinue={handleSelectTemplate}
+          onBack={handleBackToLayout}
+          initialSelection={selectedTemplate?.id || 'clean-white'}
         />
       )}
 
