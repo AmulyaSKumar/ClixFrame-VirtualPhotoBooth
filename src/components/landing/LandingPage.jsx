@@ -19,24 +19,24 @@ function LandingPage() {
       </div>
 
       {/* Features Section */}
-      <section id="features" className="pt-12 pb-24 sm:pt-16 sm:pb-32 md:pt-20 md:pb-40 bg-paper flex justify-center">
+      <section id="features" className="pt-12 pb-20 sm:pt-16 sm:pb-28 md:pt-20 md:pb-36 bg-paper flex justify-center">
         <div className="px-6 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '1100px' }}>
           {/* Section Header */}
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <p className="font-accent text-xl sm:text-2xl text-ink/70 mb-4">How it works</p>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <p className="font-accent text-xl sm:text-2xl text-ink/70 mb-3">How it works</p>
             <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl text-ink font-bold leading-tight tracking-tight">
               Three simple steps
             </h2>
           </div>
 
           {/* Numbered Features */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '4rem', textAlign: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem', textAlign: 'center' }}>
             {/* Feature 1 */}
-            <div className="group" style={{ padding: '2rem 1rem' }}>
-              <span className="font-hero text-7xl sm:text-8xl md:text-9xl font-bold text-ink/[0.07] leading-none transition-all duration-300 group-hover:text-ink/[0.12]" style={{ display: 'block' }}>
+            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+              <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 01
               </span>
-              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>
                 Strike a pose
               </h3>
               <p className="font-body text-mid text-sm sm:text-base leading-relaxed" style={{ maxWidth: '260px', margin: '0 auto' }}>
@@ -45,11 +45,11 @@ function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="group" style={{ padding: '2rem 1rem' }}>
-              <span className="font-hero text-7xl sm:text-8xl md:text-9xl font-bold text-ink/[0.07] leading-none transition-all duration-300 group-hover:text-ink/[0.12]" style={{ display: 'block' }}>
+            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+              <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 02
               </span>
-              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>
                 Pick your style
               </h3>
               <p className="font-body text-mid text-sm sm:text-base leading-relaxed" style={{ maxWidth: '260px', margin: '0 auto' }}>
@@ -58,11 +58,11 @@ function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="group" style={{ padding: '2rem 1rem' }}>
-              <span className="font-hero text-7xl sm:text-8xl md:text-9xl font-bold text-ink/[0.07] leading-none transition-all duration-300 group-hover:text-ink/[0.12]" style={{ display: 'block' }}>
+            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+              <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 03
               </span>
-              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+              <h3 className="font-subheading text-xl sm:text-2xl text-ink font-semibold" style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>
                 Download & share
               </h3>
               <p className="font-body text-mid text-sm sm:text-base leading-relaxed" style={{ maxWidth: '260px', margin: '0 auto' }}>
@@ -97,17 +97,18 @@ function LandingPage() {
 
           <Link
             to="/templates"
-            className="inline-block font-subheading text-base sm:text-lg font-semibold bg-bg text-ink px-12 sm:px-16 py-4 sm:py-5 rounded-full hover:bg-paper transition-all duration-300 hover:scale-[1.03] shadow-xl hover:shadow-2xl"
+            className="inline-block font-typewriter text-base sm:text-lg font-semibold uppercase tracking-wider bg-bg text-ink px-10 sm:px-14 py-4 sm:py-5 hover:bg-paper transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
+            style={{ letterSpacing: '0.08em' }}
           >
             Start the Booth
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginTop: '3rem' }} className="text-bg/30">
-            <span className="font-typewriter text-xs uppercase tracking-widest">Free</span>
-            <span style={{ width: '4px', height: '4px', borderRadius: '50%' }} className="bg-bg/20" />
-            <span className="font-typewriter text-xs uppercase tracking-widest">No signup</span>
-            <span style={{ width: '4px', height: '4px', borderRadius: '50%' }} className="bg-bg/20" />
-            <span className="font-typewriter text-xs uppercase tracking-widest">Instant</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', marginTop: '2.5rem' }} className="text-bg/50">
+            <span className="font-typewriter text-sm uppercase" style={{ letterSpacing: '0.15em' }}>Free</span>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%' }} className="bg-bg/30" />
+            <span className="font-typewriter text-sm uppercase" style={{ letterSpacing: '0.15em' }}>No signup</span>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%' }} className="bg-bg/30" />
+            <span className="font-typewriter text-sm uppercase" style={{ letterSpacing: '0.15em' }}>Instant</span>
           </div>
         </div>
       </section>

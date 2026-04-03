@@ -26,11 +26,11 @@ function HeroSection() {
   }, [])
 
   return (
-    <section className="min-h-screen relative bg-bg">
-      <div className="relative z-10 landing-container min-h-screen flex flex-col px-5 sm:px-6 lg:px-8">
-        {/* Hero Content - Added more top margin on mobile */}
-        <div className="flex-1 flex items-center mt-6 sm:mt-0">
-          <div className="w-full grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-center">
+    <section className="min-h-screen relative bg-bg flex items-center">
+      <div className="relative z-10 landing-container w-full px-5 sm:px-6 lg:px-8 py-8 sm:py-0">
+        {/* Hero Content - Vertically centered */}
+        <div className="w-full">
+          <div className="w-full grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Left: Text Content */}
             <div className={`space-y-6 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
               {/* Main Headline */}
@@ -68,29 +68,24 @@ function HeroSection() {
               </div>
 
               {/* CTA Buttons */}
-              <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-200' : 'opacity-0'}`}>
+              <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-200' : 'opacity-0'}`}>
                 <Link to="/templates">
-                  <Button variant="primary" size="lg" className="w-full sm:w-auto">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-4 sm:py-5 font-semibold">
                     Start the Booth
                   </Button>
                 </Link>
                 <Button
                   variant="outline"
-                  size="md"
+                  size="sm"
                   onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto text-xs sm:text-sm"
                 >
                   See How It Works
                 </Button>
               </div>
 
-              {/* Emotional tagline */}
-              <p className={`font-body text-mid text-sm sm:text-base italic leading-relaxed max-w-md mx-auto lg:mx-0 ${isVisible ? 'animate-slide-up delay-300' : 'opacity-0'}`}>
-                "Because the best memories aren't just clicked—they're kept."
-              </p>
-
               {/* Social Proof */}
-              <div className={`flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-400' : 'opacity-0'}`}>
+              <div className={`flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-300' : 'opacity-0'}`}>
                 <div className="font-body text-xs sm:text-sm text-mid bg-ghost/50 px-3 py-1.5 rounded-full">
                   10,000+ memories
                 </div>
@@ -104,8 +99,8 @@ function HeroSection() {
             </div>
 
             {/* Right: Demo Preview */}
-            <div className={`flex justify-center order-2 mt-4 sm:mt-0 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
-              <DemoPreview className="w-40 sm:w-52 md:w-60 lg:w-72" />
+            <div className={`flex justify-center order-2 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
+              <DemoPreview className="w-44 sm:w-56 md:w-64 lg:w-72" />
             </div>
           </div>
         </div>

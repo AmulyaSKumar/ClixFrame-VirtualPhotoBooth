@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useBooth } from './context/BoothContext'
+import ScrollToTop from './components/shared/ScrollToTop'
 import LandingPage from './components/landing/LandingPage'
 import TemplateSelectionPage from './components/templates/TemplateSelectionPage'
 import LayoutSelectionPage from './components/templates/LayoutSelectionPage'
@@ -52,6 +53,7 @@ function App() {
 
   return (
     <div className="min-h-screen w-full">
+      <ScrollToTop />
       <canvas ref={canvasRef} className="hidden" />
 
       <Routes>
