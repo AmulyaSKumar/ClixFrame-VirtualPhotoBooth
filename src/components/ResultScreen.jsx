@@ -1,5 +1,7 @@
-import React, { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import html2canvas from 'html2canvas'
+import { useBooth } from '../context/BoothContext'
 
 // Minimal sticker set
 const stickers = ['⭐', '❤️', '✨', '🎉', '😎', '💕']
@@ -12,22 +14,36 @@ const filters = [
   { name: 'Vivid', style: 'saturate(1.4) contrast(1.1)' },
 ]
 
-function ResultScreen({
-  photos = [],
-  onRetake,
-  selectedLayout = null,
-  selectedTemplate = null,
-}) {
+function ResultScreen() {
+  // Get data from context
+  const {
+    capturedPhotos,
+    selectedLayout,
+    selectedTemplate,
+    handleRetakeAll,
+    resetBooth,
+    totalPhotos,
+  } = useBooth()
+
+  const photos = capturedPhotos
   const stripRef = useRef(null)
   const [placedStickers, setPlacedStickers] = useState([])
   const [activeStickerId, setActiveStickerId] = useState(null)
   const [selectedFilter, setSelectedFilter] = useState('None')
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [canShare, setCanShare] = useState(false)
+
+  // Check if Web Share API is available
+  useEffect(() => {
+    setCanShare(!!navigator.share && !!navigator.canShare)
+  }, [])
 
   // Get layout info
-  const layoutId = selectedLayout?.id || 'classic-strip'
+  const layoutId = selectedLayout?.id || selectedTemplate?.fixedLayoutId || 'classic-strip'
   const templateId = selectedTemplate?.id || 'clean-white'
-  const photoCount = selectedLayout?.photos || selectedTemplate?.fixedPhotos || 4
+  const photoCount = totalPhotos
 
   // Create photo slots based on layout
   const photoSlots = photos.length > 0
@@ -106,8 +122,9 @@ function ResultScreen({
 
   // Download handler
   const handleDownload = useCallback(async () => {
-    if (photos.length === 0) return
+    if (photos.length === 0 || isProcessing) return
     setIsDownloading(true)
+    setIsProcessing(true)
 
     try {
       const stripElement = stripRef.current
@@ -115,7 +132,7 @@ function ResultScreen({
 
       // Use html2canvas to capture the rendered element
       const canvas = await html2canvas(stripElement, {
-        scale: 2, // Higher resolution
+        scale: 2, // Higher resolution for crisp output
         useCORS: true, // Allow cross-origin images
         allowTaint: true,
         backgroundColor: null, // Use element's background
@@ -131,8 +148,61 @@ function ResultScreen({
       console.error('Download failed:', error)
     } finally {
       setIsDownloading(false)
+      setIsProcessing(false)
     }
-  }, [photos, templateId])
+  }, [photos, templateId, isProcessing])
+
+  // Share handler using Web Share API
+  const handleShare = useCallback(async () => {
+    if (photos.length === 0 || isProcessing) return
+    setIsSharing(true)
+    setIsProcessing(true)
+
+    try {
+      const stripElement = stripRef.current
+      if (!stripElement) return
+
+      // Capture the strip as canvas
+      const canvas = await html2canvas(stripElement, {
+        scale: 2, // Higher resolution for crisp output
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false,
+      })
+
+      // Convert to blob
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/png', 1.0)
+      })
+
+      const file = new File([blob], `clixframe-${templateId}-${Date.now()}.png`, { type: 'image/png' })
+
+      // Check if we can share files
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'My ClixFrame Photo',
+          text: 'Check out my photo booth strip from ClixFrame!',
+          files: [file],
+        })
+      } else if (navigator.share) {
+        // Fallback: share without file (just link)
+        await navigator.share({
+          title: 'ClixFrame - Photo Booth',
+          text: 'Create fun photo booth strips at ClixFrame!',
+          url: window.location.origin,
+        })
+      }
+    } catch (error) {
+      // User cancelled share or share failed
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error)
+      }
+    } finally {
+      setIsSharing(false)
+      setIsProcessing(false)
+    }
+  }, [photos, templateId, isProcessing])
 
   // Render photo with filter
   const renderPhoto = (photo, index, style = {}) => (
@@ -533,11 +603,11 @@ function ResultScreen({
   )
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', backgroundColor: '#f7f7f5', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100dvh', width: '100%', maxWidth: '100vw', backgroundColor: '#f7f7f5', display: 'flex', flexDirection: 'column', overflowX: 'hidden', boxSizing: 'border-box' }}>
       {/* Header */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px clamp(1.5rem, 5vw, 3rem)', borderBottom: '1px solid #e8e8e8', backgroundColor: '#fff' }}>
         <button
-          onClick={onRetake}
+          onClick={handleRetakeAll}
           style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '13px', padding: '4px' }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -546,26 +616,50 @@ function ResultScreen({
           <span>Retake</span>
         </button>
 
-        <span style={{ fontSize: '18px', fontWeight: 500, color: '#0a0a0a', letterSpacing: '-0.02em' }}>
-          Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
-        </span>
-
-        <button
-          onClick={handleDownload}
-          disabled={isDownloading}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#0a0a0a', color: '#fff', padding: '8px 18px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: isDownloading ? 0.5 : 1 }}
+        <Link
+          to="/"
+          onClick={resetBooth}
+          style={{ fontSize: '18px', fontWeight: 500, color: '#0a0a0a', letterSpacing: '-0.02em', textDecoration: 'none' }}
         >
-          <span>{isDownloading ? 'Saving...' : 'Save'}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-          </svg>
-        </button>
+          Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
+        </Link>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {/* Share button - only show on mobile with Web Share API */}
+          {canShare && (
+            <button
+              onClick={handleShare}
+              disabled={isProcessing}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#fff', color: '#0a0a0a', padding: '8px 14px', borderRadius: '4px', border: '1px solid #e8e8e8', cursor: isProcessing ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 500, opacity: isProcessing ? 0.5 : 1 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              <span className="hidden sm:inline">{isProcessing ? 'Preparing...' : 'Share'}</span>
+            </button>
+          )}
+          {/* Save/Download button */}
+          <button
+            onClick={handleDownload}
+            disabled={isProcessing}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#0a0a0a', color: '#fff', padding: '8px 18px', borderRadius: '4px', border: 'none', cursor: isProcessing ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 500, opacity: isProcessing ? 0.5 : 1 }}
+          >
+            <span>{isProcessing ? 'Preparing...' : 'Save'}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', overflow: 'hidden' }}>
-        {/* Left Column - Photo Strip */}
-        <div style={{ flex: '0 0 60%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px', backgroundColor: '#f7f7f5' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        {/* Photo Strip Section */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', backgroundColor: '#f7f7f5', minHeight: '50vh' }}>
           <div
             ref={stripRef}
             style={{
@@ -630,20 +724,20 @@ function ResultScreen({
           </div>
         </div>
 
-        {/* Right Column - Editing Panel */}
-        <div style={{ flex: '0 0 40%', borderLeft: '1px solid #e8e8e8', backgroundColor: '#fff', padding: '2rem 1.5rem', overflowY: 'auto' }}>
+        {/* Editing Panel */}
+        <div style={{ borderTop: '1px solid #e8e8e8', backgroundColor: '#fff', padding: '24px 16px' }}>
           {/* Layout Info */}
-          <div style={{ marginBottom: '24px', padding: '12px', backgroundColor: '#f7f7f5', borderRadius: '8px' }}>
+          <div style={{ marginBottom: '20px', padding: '12px', backgroundColor: '#f7f7f5', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Current Style</div>
             <div style={{ fontSize: '13px', fontWeight: 500, color: '#0a0a0a' }}>
-              {selectedLayout?.name || 'Classic strip'} · {selectedTemplate?.name || 'Clean white'}
+              {selectedTemplate?.name || 'Clean white'}{selectedLayout?.name ? ` · ${selectedLayout.name}` : ''}
             </div>
           </div>
 
           {/* Filter Section */}
-          <div style={{ marginBottom: '32px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <SectionLabel>Filter</SectionLabel>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {filters.map((filter) => (
                 <button
                   key={filter.name}
@@ -666,23 +760,23 @@ function ResultScreen({
           </div>
 
           {/* Stickers Section */}
-          <div>
+          <div style={{ marginBottom: '24px' }}>
             <SectionLabel>Stickers</SectionLabel>
-            <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px' }}>
+            <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px', textAlign: 'center' }}>
               Tap to add, drag to move
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {stickers.map((sticker, index) => (
                 <button
                   key={index}
                   onClick={() => handleAddSticker(sticker)}
                   style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '44px',
+                    height: '44px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '24px',
+                    fontSize: '22px',
                     backgroundColor: '#f7f7f5',
                     border: '1px solid #e8e8e8',
                     borderRadius: '8px',
@@ -696,6 +790,42 @@ function ResultScreen({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleRetakeAll}
+              style={{
+                padding: '12px 24px',
+                border: '1px solid #e8e8e8',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                backgroundColor: '#fff',
+                color: '#555',
+              }}
+            >
+              Retake Photos
+            </button>
+            <Link
+              to="/"
+              onClick={resetBooth}
+              style={{
+                padding: '12px 24px',
+                border: '1px solid #e8e8e8',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                backgroundColor: '#fff',
+                color: '#555',
+                textDecoration: 'none',
+              }}
+            >
+              Start New
+            </Link>
           </div>
         </div>
       </div>

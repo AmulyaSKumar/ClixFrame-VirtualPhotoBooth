@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Button from './Button'
 import DemoPreview from './DemoPreview'
 
@@ -9,7 +10,7 @@ const rotatingPhrases = [
   'unforgettable nights',
 ]
 
-function HeroSection({ onStartBooth }) {
+function HeroSection() {
   const [currentPhrase, setCurrentPhrase] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -27,13 +28,6 @@ function HeroSection({ onStartBooth }) {
   return (
     <section className="min-h-screen relative bg-bg">
       <div className="relative z-10 landing-container min-h-screen flex flex-col px-5 sm:px-6 lg:px-8">
-        {/* Navigation / Header */}
-        <nav className="py-5 sm:py-6 flex items-center justify-between">
-          <span className="font-logo text-2xl sm:text-2xl md:text-3xl text-ink font-bold tracking-tight">
-            Clix<span className="font-accent text-3xl sm:text-3xl md:text-4xl">frame</span>
-          </span>
-        </nav>
-
         {/* Hero Content - Added more top margin on mobile */}
         <div className="flex-1 flex items-center mt-6 sm:mt-0">
           <div className="w-full grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-20 items-center">
@@ -75,9 +69,11 @@ function HeroSection({ onStartBooth }) {
 
               {/* CTA Buttons */}
               <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start ${isVisible ? 'animate-slide-up delay-200' : 'opacity-0'}`}>
-                <Button variant="primary" size="lg" onClick={onStartBooth} className="w-full sm:w-auto">
-                  Start the Booth
-                </Button>
+                <Link to="/templates">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto">
+                    Start the Booth
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   size="md"

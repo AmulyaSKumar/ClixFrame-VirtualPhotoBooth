@@ -4,87 +4,78 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ClixFrame is a virtual photo booth web application built with React + Vite. Users select a template and layout, take photos via webcam with an automatic countdown, then customize with filters and stickers before downloading.
+ClixFrame is a virtual photo booth web application built with React 18 + Vite 5. Users select a template and layout, take photos via webcam with an automatic countdown, then customize with filters and stickers before downloading via html2canvas.
 
 ## Development Commands
 
 ```bash
 npm install      # Install dependencies
-npm run dev      # Start dev server (opens http://localhost:5173)
+npm run dev      # Start dev server at http://localhost:5173
 npm run build    # Production build to dist/
-npm run preview  # Preview production build
+npm run preview  # Preview production build locally
 npm run lint     # ESLint for .js/.jsx files
 ```
 
 ## Architecture
 
-### App Flow (State Machine in App.jsx)
+### React Router + Context Navigation
 
-The app uses a single `currentScreen` state to manage navigation through these screens:
-1. **landing** → LandingPage (marketing/intro)
-2. **template** → TemplateSelectionPage (choose frame style)
-3. **layout** → LayoutSelectionPage (choose photo arrangement) - skipped for templates with `needsLayout: false`
-4. **camera** → CameraScreen (webcam capture with countdown)
-5. **result** → ResultScreen (preview, filters, stickers, download)
+The app uses React Router for URL-based navigation and `BoothContext` (`src/context/BoothContext.jsx`) for centralized state management. Route guards in App.jsx enforce the booth flow.
 
-### Key State in App.jsx
-- `selectedTemplate` - Frame style (minimal, newspaper, polaroid, film)
-- `selectedLayout` - Photo arrangement (strip, grid, etc.)
-- `capturedPhotos` - Array of base64 JPEG data URLs
-- `totalPhotos` - Derived from layout or template's `fixedPhotos`
-
-### Component Structure
-
+**Routes (App.jsx):**
 ```
-src/
-├── App.jsx                 # Main state machine, photo capture logic
-├── main.jsx               # React entry point
-├── styles/globals.css     # Tailwind v4 + custom design system
-└── components/
-    ├── landing/           # LandingPage, HeroSection, Button, DemoPreview
-    ├── templates/
-    │   ├── TemplateSelectionPage.jsx
-    │   ├── LayoutSelectionPage.jsx
-    │   └── shared/
-    │       ├── TemplatePreviews.jsx  # All template definitions & preview components
-    │       ├── LayoutPreviews.jsx    # All layout definitions & preview components
-    │       ├── SelectionCard.jsx
-    │       ├── ProgressBar.jsx
-    │       └── PersonPlaceholder.jsx
-    ├── CameraScreen.jsx   # Webcam access, countdown timer, flash effect
-    └── ResultScreen.jsx   # Sticker placement, filters, html2canvas download
+/           → LandingPage
+/templates  → TemplateSelectionPage
+/layout     → LayoutRoute (guarded - requires template with needsLayout)
+/camera     → CameraRoute (guarded - requires template + layout if needed)
+/result     → ResultRoute (guarded - requires captured photos)
+/privacy, /about, /contact → Static pages
 ```
 
-### Template System
+**Route Guards:** Components like `LayoutRoute`, `CameraRoute`, `ResultRoute` check context state and redirect via `<Navigate>` if prerequisites aren't met.
 
-Templates are defined in `src/components/templates/shared/TemplatePreviews.jsx`:
-- Categories: `minimal`, `newspaper`, `polaroid`, `film`
-- Each template has: `id`, `name`, `description`, `preview` (React component), `needsLayout` (boolean)
-- Templates with `needsLayout: false` have `fixedPhotos` count and skip layout selection
+### BoothContext (`src/context/BoothContext.jsx`)
 
-Layouts are defined in `src/components/templates/shared/LayoutPreviews.jsx`:
-- Options include: classic-strip, grid-2x2, wide-strip, big-plus-two, filmstrip, single-portrait, three-wide, hero-row
-- Each layout specifies `photos` count
+Central state provider wrapping the app. Key exports:
+- **State:** `photoNumber`, `countdown`, `capturedPhotos`, `isCapturing`, `isPaused`, `selectedTemplate`, `selectedLayout`, `cameraReady`, `totalPhotos`
+- **Handlers:** `handleSelectTemplate`, `handleSelectLayout`, `startCamera`, `resetBooth`, `backToTemplate`, `backToLayoutOrTemplate`, `handleRetake`, `handleRetakeAll`
+- **Camera refs:** `setVideoElement`, `handleCameraReady`, `handleFacingModeChange`
 
-### Styling
+The countdown timer and photo capture logic runs in a `useEffect` inside BoothContext, triggered when on `/camera` path with `isCapturing=true` and `cameraReady=true`.
 
-Uses Tailwind CSS v4 with custom design system in `globals.css`:
-- Custom fonts: Syne (logo/hero), Outfit (subheading), DM Sans (body), JetBrains Mono (typewriter), Caveat (accent)
-- Color palette: `--color-bg`, `--color-ink`, `--color-mid`, `--color-ghost`, `--color-paper`
-- Custom animations: typewriter, fade-in, photo-develop, pulse-soft
-- Component classes: `.btn-*`, `.card-*`, `.chip-*`, `.photo-frame`
+### Key Concepts
 
-### Photo Capture Flow
+**Templates** (`src/components/templates/shared/TemplatePreviews.jsx`):
+- Define frame styling organized by category: `minimal`, `newspaper`, `polaroid`, `film`
+- Properties: `id`, `name`, `description`, `preview` component, `needsLayout`, `fixedPhotos`, `fixedLayoutId`
+- Templates with `needsLayout: false` skip layout selection and use `fixedPhotos` count
+- Exported as `templateOptions` (by category) and `allTemplates` (flat array)
 
-1. CameraScreen requests webcam via `getUserMedia`
-2. App.jsx runs countdown timer (3 seconds per photo)
-3. On countdown=1, flash effect triggers, then `capturePhoto()` draws video frame to hidden canvas
-4. Photos stored as base64 JPEGs with mirror transform applied
-5. After all photos captured, transitions to ResultScreen
+**Layouts** (`src/components/templates/shared/LayoutPreviews.jsx`):
+- Define photo arrangement (classic-strip, grid-2x2, wide-strip, big-plus-two, filmstrip, single-portrait, three-wide, hero-row)
+- Each layout specifies `photos` count (1-6) which determines capture session length
+- Exported as `layoutOptions` array
 
-### Download Implementation
+**Photo Capture Flow:**
+1. CameraScreen requests webcam via `getUserMedia`, reports ready state via `handleCameraReady`
+2. BoothContext runs 3-second countdown per photo in a `useEffect` timer (only when `cameraReady=true`)
+3. At countdown=1, flash triggers, then `capturePhoto()` draws video frame to hidden canvas
+4. Photos stored as base64 JPEGs (mirrored for front camera via `facingModeRef`)
+5. 2-second pause between photos, then after `totalPhotos` captured → navigate to `/result`
 
-ResultScreen uses `html2canvas` to capture the styled photo strip element including:
-- Template-specific styling (borders, backgrounds, newspaper text)
-- Applied filter (grayscale, sepia, vivid)
-- Placed stickers (draggable emojis)
+**Download:** ResultScreen uses html2canvas to capture the styled strip including filters and stickers
+
+### Design System (globals.css)
+
+Tailwind CSS v4 with custom `@theme` block defining:
+- **Fonts:** `font-logo`/`font-hero` (Syne), `font-subheading` (Outfit), `font-body` (DM Sans), `font-typewriter` (JetBrains Mono), `font-accent` (Caveat)
+- **Colors:** `--color-bg` (#FAFAFA), `--color-ink` (#0D0D0D), `--color-mid` (#5C5C5C), `--color-ghost` (#E8E8E8), `--color-paper` (#F5F5F5)
+- **Component classes:** `.btn-*`, `.card-*`, `.chip-*`, `.input`, `.label`, `.landing-*`
+- **Animations:** `fade-in`, `fade-up`, `photo-develop`, `typewriter`, `flash`, `countdown-pulse`
+
+### Styling Conventions
+
+- Selection pages use Tailwind classes
+- CameraScreen and ResultScreen use inline styles for dynamic/template-specific rendering
+- Template preview components render with inline styles for precise control
+- Landing page uses dedicated `.landing-*` and `.btn-landing-*` classes

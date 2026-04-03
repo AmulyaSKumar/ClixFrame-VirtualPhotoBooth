@@ -1,4 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useBooth } from '../context/BoothContext'
+
+// Check if we're on HTTPS or localhost
+const isSecureContext = () => {
+  return window.isSecureContext ||
+    window.location.protocol === 'https:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+}
 
 // Prompt text changes per shot
 const promptTexts = {
@@ -8,36 +18,40 @@ const promptTexts = {
   4: 'Last one — give it your best!',
 }
 
-function CameraScreen({
-  photoNumber = 1,
-  totalPhotos = 4,
-  countdown = 3,
-  isCapturing = true,
-  isPaused = false,
-  onRetake,
-  onCancel,
-  onVideoRef,
-  onCameraReady,
-  onFacingModeChange,
-}) {
+function CameraScreen() {
+  // Get everything from context
+  const {
+    photoNumber,
+    totalPhotos,
+    countdown,
+    isCapturing,
+    isPaused,
+    setVideoElement,
+    handleCameraReady,
+    handleFacingModeChange,
+    backToLayoutOrTemplate,
+  } = useBooth()
+
   const videoRef = useRef(null)
   const [cameraError, setCameraError] = useState('')
+  const [errorType, setErrorType] = useState('') // 'permission', 'http', 'not-supported', 'generic'
   const [flashEffect, setFlashEffect] = useState(false)
   const [countdownKey, setCountdownKey] = useState(0)
   const [facingMode, setFacingMode] = useState('user') // 'user' = front, 'environment' = back
   const [cameraReady, setCameraReady] = useState(false)
   const streamRef = useRef(null)
 
+  // Pass video ref to context
   useEffect(() => {
-    if (videoRef.current && onVideoRef) {
-      onVideoRef(videoRef.current)
+    if (videoRef.current && setVideoElement) {
+      setVideoElement(videoRef.current)
     }
-  }, [onVideoRef])
+  }, [setVideoElement])
 
   // Notify parent of initial facing mode
   useEffect(() => {
-    if (onFacingModeChange) {
-      onFacingModeChange(facingMode)
+    if (handleFacingModeChange) {
+      handleFacingModeChange(facingMode)
     }
   }, []) // Only on mount
 
@@ -58,8 +72,18 @@ function CameraScreen({
 
   useEffect(() => {
     const startCamera = async () => {
+      // Check for HTTPS first
+      if (!isSecureContext()) {
+        setCameraError('Camera requires a secure connection (HTTPS).')
+        setErrorType('http')
+        setCameraReady(false)
+        if (handleCameraReady) handleCameraReady(false)
+        return
+      }
+
       if (!navigator.mediaDevices?.getUserMedia) {
         setCameraError('Camera is not supported on this browser.')
+        setErrorType('not-supported')
         return
       }
 
@@ -70,6 +94,7 @@ function CameraScreen({
 
       setCameraReady(false)
       setCameraError('')
+      setErrorType('')
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -85,22 +110,34 @@ function CameraScreen({
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream
-          if (onVideoRef) {
-            onVideoRef(videoRef.current)
+          if (setVideoElement) {
+            setVideoElement(videoRef.current)
           }
           // Wait for video to be ready
           videoRef.current.onloadedmetadata = () => {
             setCameraReady(true)
-            if (onCameraReady) {
-              onCameraReady(true)
+            if (handleCameraReady) {
+              handleCameraReady(true)
             }
           }
         }
       } catch (error) {
-        setCameraError('Unable to access camera. Please allow camera permissions.')
         setCameraReady(false)
-        if (onCameraReady) {
-          onCameraReady(false)
+        if (handleCameraReady) handleCameraReady(false)
+
+        // Detect specific error types
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setCameraError('Camera access was denied.')
+          setErrorType('permission')
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setCameraError('No camera found on this device.')
+          setErrorType('not-found')
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          setCameraError('Camera is in use by another app.')
+          setErrorType('in-use')
+        } else {
+          setCameraError('Unable to access camera.')
+          setErrorType('generic')
         }
       }
     }
@@ -112,7 +149,7 @@ function CameraScreen({
         streamRef.current.getTracks().forEach((track) => track.stop())
       }
     }
-  }, [facingMode, onVideoRef, onCameraReady])
+  }, [facingMode, setVideoElement, handleCameraReady])
 
   const allPhotosDone = photoNumber >= totalPhotos && !isCapturing
 
@@ -120,11 +157,20 @@ function CameraScreen({
   const toggleCamera = () => {
     setFacingMode((prev) => {
       const newMode = prev === 'user' ? 'environment' : 'user'
-      if (onFacingModeChange) {
-        onFacingModeChange(newMode)
+      if (handleFacingModeChange) {
+        handleFacingModeChange(newMode)
       }
       return newMode
     })
+  }
+
+  // Handle exit/cancel
+  const handleCancel = () => {
+    // Stop camera stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+    }
+    backToLayoutOrTemplate()
   }
 
   // Progress dots component
@@ -193,13 +239,19 @@ function CameraScreen({
 
   return (
     <div
+      className="camera-screen-container"
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh', // Modern dynamic viewport height
         width: '100%',
+        maxWidth: '100vw',
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#f7f7f5',
         padding: '0 clamp(1.5rem, 5vw, 3rem)',
+        paddingTop: 'env(safe-area-inset-top, 0)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)',
+        overflowX: 'hidden',
+        boxSizing: 'border-box',
       }}
     >
       {/* Header */}
@@ -216,7 +268,7 @@ function CameraScreen({
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Exit Button */}
           <button
-            onClick={() => onCancel?.()}
+            onClick={handleCancel}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -284,19 +336,21 @@ function CameraScreen({
         </div>
 
         {/* Logo */}
-        <span
+        <Link
+          to="/"
           style={{
             fontSize: '18px',
             fontWeight: 500,
             color: '#0a0a0a',
             letterSpacing: '-0.02em',
+            textDecoration: 'none',
           }}
         >
           Clix
           <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
             frame
           </span>
-        </span>
+        </Link>
 
         {/* Photo Counter */}
         <span
@@ -328,7 +382,7 @@ function CameraScreen({
             position: 'relative',
             width: '100%',
             maxWidth: '720px',
-            maxHeight: '70vh',
+            maxHeight: 'min(70vh, 70dvh, 500px)', // Use dvh for iOS Safari
             aspectRatio: '4 / 3',
             borderRadius: '8px',
             overflow: 'hidden',
@@ -347,67 +401,129 @@ function CameraScreen({
                 backgroundColor: '#f7f7f5',
               }}
             >
-              <div style={{ textAlign: 'center', padding: '24px' }}>
+              <div style={{ textAlign: 'center', padding: '24px', maxWidth: '320px' }}>
+                {/* Icon based on error type */}
                 <div
                   style={{
-                    width: '64px',
-                    height: '64px',
-                    margin: '0 auto 16px',
-                    backgroundColor: '#e8e8e8',
+                    width: '72px',
+                    height: '72px',
+                    margin: '0 auto 20px',
+                    backgroundColor: errorType === 'http' ? '#fef3c7' : errorType === 'permission' ? '#fee2e2' : '#e8e8e8',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#888"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
+                  {errorType === 'permission' ? (
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                    </svg>
+                  ) : errorType === 'http' ? (
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      <path d="M12 8v4M12 16h.01" />
+                    </svg>
+                  ) : (
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  )}
                 </div>
-                <h2
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 500,
-                    color: '#0a0a0a',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Camera Unavailable
+
+                {/* Title based on error type */}
+                <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0a0a0a', marginBottom: '8px' }}>
+                  {errorType === 'permission' && 'Camera Access Blocked'}
+                  {errorType === 'http' && 'Secure Connection Required'}
+                  {errorType === 'not-found' && 'No Camera Found'}
+                  {errorType === 'in-use' && 'Camera Busy'}
+                  {errorType === 'not-supported' && 'Camera Not Supported'}
+                  {errorType === 'generic' && 'Camera Unavailable'}
                 </h2>
-                <p
-                  style={{
-                    fontSize: '13px',
-                    color: '#888',
-                    maxWidth: '280px',
-                    margin: '0 auto 16px',
-                  }}
-                >
+
+                {/* Error message */}
+                <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px', lineHeight: 1.5 }}>
                   {cameraError}
                 </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  style={{
-                    backgroundColor: '#0a0a0a',
-                    color: '#fff',
-                    padding: '10px 24px',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    borderRadius: '4px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Try Again
-                </button>
+
+                {/* Instructions based on error type */}
+                <div style={{ backgroundColor: '#fff', border: '1px solid #e8e8e8', borderRadius: '8px', padding: '16px', marginBottom: '20px', textAlign: 'left' }}>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#0a0a0a', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    How to fix:
+                  </p>
+                  {errorType === 'permission' && (
+                    <ol style={{ fontSize: '13px', color: '#555', margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
+                      <li>Click the camera icon in your browser's address bar</li>
+                      <li>Select "Allow" for camera access</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                  )}
+                  {errorType === 'http' && (
+                    <ol style={{ fontSize: '13px', color: '#555', margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
+                      <li>Make sure the URL starts with <strong>https://</strong></li>
+                      <li>If using localhost, camera should work</li>
+                      <li>Contact site admin if HTTPS is not available</li>
+                    </ol>
+                  )}
+                  {errorType === 'not-found' && (
+                    <ol style={{ fontSize: '13px', color: '#555', margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
+                      <li>Connect a webcam to your device</li>
+                      <li>Check if camera is enabled in system settings</li>
+                      <li>Try using a different browser</li>
+                    </ol>
+                  )}
+                  {errorType === 'in-use' && (
+                    <ol style={{ fontSize: '13px', color: '#555', margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
+                      <li>Close other apps using the camera (Zoom, Teams, etc.)</li>
+                      <li>Close other browser tabs with camera access</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                  )}
+                  {(errorType === 'not-supported' || errorType === 'generic') && (
+                    <ol style={{ fontSize: '13px', color: '#555', margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
+                      <li>Try using Chrome, Safari, or Firefox</li>
+                      <li>Update your browser to the latest version</li>
+                      <li>Check your device's camera permissions</li>
+                    </ol>
+                  )}
+                </div>
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                  <button
+                    onClick={handleCancel}
+                    style={{
+                      backgroundColor: '#fff',
+                      color: '#555',
+                      padding: '12px 20px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      borderRadius: '8px',
+                      border: '1px solid #ddd',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    onClick={() => window.location.reload()}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      color: '#fff',
+                      padding: '12px 20px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Try Again
+                  </button>
+                </div>
               </div>
             </div>
           ) : (

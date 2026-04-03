@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useBooth } from '../../context/BoothContext'
 import ProgressBar from './shared/ProgressBar'
 import SelectionCard from './shared/SelectionCard'
 import { templateOptions, allTemplates } from './shared/TemplatePreviews'
@@ -10,21 +12,19 @@ const sectionLabels = {
   film: 'Film',
 }
 
-function TemplateSelectionPage({
-  onContinue,
-  onBack,
-  initialSelection = 'clean-white',
-  currentStep = 1,
-  totalSteps = 3,
-}) {
-  const [selectedTemplate, setSelectedTemplate] = useState(initialSelection)
+function TemplateSelectionPage() {
+  const navigate = useNavigate()
+  const { handleSelectTemplate, selectedTemplate } = useBooth()
+  const [selected, setSelected] = useState(selectedTemplate?.id || 'clean-white')
 
   const handleContinue = () => {
-    const template = allTemplates.find((t) => t.id === selectedTemplate)
-    onContinue(template)
+    const template = allTemplates.find((t) => t.id === selected)
+    if (template) {
+      handleSelectTemplate(template)
+    }
   }
 
-  const selectedTemplateData = allTemplates.find((t) => t.id === selectedTemplate)
+  const selectedTemplateData = allTemplates.find((t) => t.id === selected)
   const selectedTemplateName = selectedTemplateData?.name || ''
   const needsLayout = selectedTemplateData?.needsLayout !== false
 
@@ -32,112 +32,75 @@ function TemplateSelectionPage({
   const buttonText = needsLayout ? 'Choose layout →' : 'Start camera →'
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        backgroundColor: '#f7f7f5',
-        padding: '0 clamp(1.5rem, 5vw, 3rem)',
-      }}
-    >
+    <div className="min-h-screen flex flex-col bg-[#f7f7f5]">
       {/* Header */}
-      <header style={{ paddingTop: '24px', paddingBottom: '16px' }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <span
-            style={{
-              fontSize: '18px',
-              fontWeight: 500,
-              color: '#0a0a0a',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Clix
-            <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
-              frame
-            </span>
-          </span>
-        </div>
+      <header className="bg-[#f7f7f5] border-b border-ink/10 sticky top-0 z-50">
+        <div className="px-4 sm:px-6 lg:px-8 py-4" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          {/* Top row: Logo and Nav */}
+          <div className="flex items-center justify-between mb-4">
+            {/* Logo */}
+            <Link
+              to="/"
+              className="font-logo text-xl sm:text-2xl font-bold text-ink tracking-tight hover:opacity-70 transition-opacity"
+            >
+              Clix<span className="font-accent text-2xl sm:text-3xl">frame</span>
+            </Link>
 
-        {/* Progress Bar */}
-        <div style={{ marginBottom: '24px' }}>
-          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-        </div>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link
+                to="/about"
+                className="font-typewriter text-xs text-mid hover:text-ink transition-colors uppercase tracking-wider"
+              >
+                About
+              </Link>
+              <Link
+                to="/privacy"
+                className="font-typewriter text-xs text-mid hover:text-ink transition-colors uppercase tracking-wider"
+              >
+                Privacy
+              </Link>
+              <Link
+                to="/contact"
+                className="font-typewriter text-xs text-mid hover:text-ink transition-colors uppercase tracking-wider"
+              >
+                Contact
+              </Link>
+            </nav>
+          </div>
 
-        {/* Title */}
-        <div style={{ textAlign: 'center' }}>
-          <h1
-            style={{
-              fontSize: '28px',
-              fontWeight: 500,
-              color: '#0a0a0a',
-              letterSpacing: '-0.02em',
-              margin: 0,
-            }}
-          >
-            Choose your template
-          </h1>
-          <p
-            style={{
-              fontSize: '13px',
-              color: '#888',
-              margin: 0,
-              marginTop: '4px',
-            }}
-          >
-            Frames and borders for your photos
-          </p>
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <ProgressBar currentStep={1} totalSteps={3} />
+          </div>
+
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="font-hero text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
+              Choose your template
+            </h1>
+            <p className="font-body text-sm text-mid mt-1">
+              Frames and borders for your photos
+            </p>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main
-        style={{
-          flex: 1,
-          paddingBottom: '120px',
-          overflowY: 'auto',
-        }}
-      >
-        <div style={{ width: '100%' }}>
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pb-32 overflow-y-auto" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        <div className="py-6">
           {Object.entries(templateOptions).map(([sectionKey, templates]) => (
-            <div key={sectionKey} style={{ marginBottom: '24px' }}>
+            <div key={sectionKey} className="mb-8">
               {/* Section Label */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '1rem',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '11px',
-                    letterSpacing: '0.13em',
-                    textTransform: 'uppercase',
-                    color: '#aaa',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-typewriter text-xs uppercase tracking-widest text-mid/70">
                   {sectionLabels[sectionKey]}
                 </span>
-                <div
-                  style={{
-                    flex: 1,
-                    height: '0.5px',
-                    backgroundColor: '#ddd',
-                  }}
-                />
+                <div className="flex-1 h-px bg-ink/10" />
               </div>
 
               {/* Template Grid */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                  gap: '14px',
-                  width: '100%',
-                }}
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {templates.map((template) => {
                   const PreviewComponent = template.preview
                   return (
@@ -145,19 +108,11 @@ function TemplateSelectionPage({
                       key={template.id}
                       name={template.name}
                       description={template.description}
-                      isSelected={selectedTemplate === template.id}
-                      onClick={() => setSelectedTemplate(template.id)}
+                      isSelected={selected === template.id}
+                      onClick={() => setSelected(template.id)}
                       variant="template"
                     >
-                      <div
-                        style={{
-                          height: '130px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          overflow: 'hidden',
-                        }}
-                      >
+                      <div className="h-24 sm:h-32 flex items-center justify-center overflow-hidden">
                         <PreviewComponent />
                       </div>
                     </SelectionCard>
@@ -170,53 +125,21 @@ function TemplateSelectionPage({
       </main>
 
       {/* Sticky Footer CTA */}
-      <footer
-        style={{
-          position: 'sticky',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: '#fff',
-          borderTop: '0.5px solid #e8e8e8',
-          padding: '1rem 2rem',
-          marginLeft: 'calc(-1 * clamp(1.5rem, 5vw, 3rem))',
-          marginRight: 'calc(-1 * clamp(1.5rem, 5vw, 3rem))',
-        }}
-      >
-        <button
-          onClick={handleContinue}
-          style={{
-            display: 'block',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto',
-            backgroundColor: '#0a0a0a',
-            color: '#fff',
-            padding: '14px',
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.07em',
-            textTransform: 'uppercase',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {buttonText}
-        </button>
-        <p
-          style={{
-            fontSize: '11px',
-            color: '#bbb',
-            textAlign: 'center',
-            marginTop: '6px',
-          }}
-        >
-          {selectedTemplateName} selected
-          {!needsLayout && selectedTemplateData?.fixedPhotos && (
-            <span> · {selectedTemplateData.fixedPhotos} photo{selectedTemplateData.fixedPhotos > 1 ? 's' : ''}</span>
-          )}
-        </p>
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-ink/10 px-4 sm:px-6 py-4 z-40">
+        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <button
+            onClick={handleContinue}
+            className="w-full bg-ink text-bg font-subheading text-sm font-semibold py-3.5 sm:py-4 rounded-lg hover:bg-ink/90 transition-colors uppercase tracking-wider"
+          >
+            {buttonText}
+          </button>
+          <p className="text-center text-xs text-mid mt-2">
+            {selectedTemplateName} selected
+            {!needsLayout && selectedTemplateData?.fixedPhotos && (
+              <span> · {selectedTemplateData.fixedPhotos} photo{selectedTemplateData.fixedPhotos > 1 ? 's' : ''}</span>
+            )}
+          </p>
+        </div>
       </footer>
     </div>
   )

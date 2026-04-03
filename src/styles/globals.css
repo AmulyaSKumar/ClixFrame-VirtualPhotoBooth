@@ -1188,3 +1188,252 @@
   border-bottom-width: 2px;
   border-right-width: 2px;
 }
+
+/* ========================================
+   iOS Safari Viewport Fixes
+   Dynamic viewport height fallbacks
+======================================== */
+
+/* Fallback for browsers that don't support dvh */
+@supports not (min-height: 100dvh) {
+  .camera-screen-container {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* iOS Safari safe area padding */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Prevent iOS Safari bounce/overscroll on full-screen views */
+.no-bounce {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for iOS keyboard pushing content */
+@supports (-webkit-touch-callout: none) {
+  .camera-screen-container,
+  .result-screen-container {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+.sticker-draggable {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.sticker-draggable:active {
+  cursor: grabbing;
+}
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ========================================
+   UX Improvements - Screen Transitions
+======================================== */
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen-enter {
+  animation: screenFadeIn 0.25s ease-out forwards;
+}
+
+/* Photo develop animation for ResultScreen */
+@keyframes photoDevelop {
+  0%   { opacity: 0; transform: scale(0.92); filter: blur(4px) brightness(1.4); }
+  60%  { opacity: 1; transform: scale(1.01); filter: blur(0px) brightness(1.05); }
+  100% { opacity: 1; transform: scale(1);    filter: blur(0px) brightness(1); }
+}
+.photo-strip-reveal {
+  animation: photoDevelop 0.8s ease-out forwards;
+}
+
+/* Selection card enhanced styles */
+.selection-card-enhanced {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.selection-card-enhanced:hover {
+  border-color: var(--color-mid);
+  transform: translateY(-2px);
+}
+.selection-card-enhanced.selected {
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+}
+.selection-card-enhanced.selected::after {
+  content: '\2713';
+  position: absolute;
+  top: -10px; right: -10px;
+  width: 24px; height: 24px;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border-radius: 50%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Step progress bar */
+.step-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 12px 0;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  min-width: 60px;
+}
+.step-item:not(:last-child) {
+  padding-right: 40px;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 18px);
+  width: 40px;
+  height: 1px;
+  background: var(--color-ghost);
+}
+.step-item.done:not(:last-child)::after {
+  background: var(--color-ink);
+}
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ghost);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--color-ghost);
+  background: var(--color-bg);
+  z-index: 1;
+  font-weight: 500;
+}
+.step-item.active .step-dot {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.step-item.done .step-dot {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border-color: var(--color-ink);
+}
+.step-label {
+  font-size: 10px;
+  color: var(--color-ghost);
+  font-family: var(--font-typewriter);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.step-item.active .step-label {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.step-item.done .step-label {
+  color: var(--color-mid);
+}
+
+/* Thumbnail strip for ResultScreen */
+.thumbnail-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.thumbnail-strip::-webkit-scrollbar {
+  display: none;
+}
+.thumbnail-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.thumbnail-img:hover {
+  border-color: var(--color-ink);
+  transform: scale(1.05);
+}
+
+/* Disabled button state */
+.btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary CTA button - larger on mobile */
+.btn-primary-cta {
+  min-height: 56px;
+  padding: 0 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+@media (max-width: 480px) {
+  .btn-primary-cta {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Back button ghost style */
+.back-btn-ghost {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-mid);
+  font-family: var(--font-typewriter);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.back-btn-ghost:hover {
+  color: var(--color-ink);
+  background: var(--color-ghost);
+}

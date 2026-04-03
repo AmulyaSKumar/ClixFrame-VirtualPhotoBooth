@@ -1,11 +1,17 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import Navbar from '../shared/Navbar'
 import HeroSection from './HeroSection'
+import Footer from './Footer'
 
-function LandingPage({ onStartBooth }) {
+function LandingPage() {
   return (
     <div className="landing-page bg-bg overflow-x-hidden">
+      {/* Navigation */}
+      <Navbar />
+
       {/* Hero Section */}
-      <HeroSection onStartBooth={onStartBooth} />
+      <HeroSection />
 
       {/* Divider between Hero and Features */}
       <div className="w-full flex justify-center py-8 sm:py-12 bg-bg">
@@ -89,12 +95,12 @@ function LandingPage({ onStartBooth }) {
             No signup required. No downloads. Just open and start capturing moments.
           </p>
 
-          <button
-            onClick={onStartBooth}
-            className="font-subheading text-base sm:text-lg font-semibold bg-bg text-ink px-12 sm:px-16 py-4 sm:py-5 rounded-full hover:bg-paper transition-all duration-300 hover:scale-[1.03] shadow-xl hover:shadow-2xl"
+          <Link
+            to="/templates"
+            className="inline-block font-subheading text-base sm:text-lg font-semibold bg-bg text-ink px-12 sm:px-16 py-4 sm:py-5 rounded-full hover:bg-paper transition-all duration-300 hover:scale-[1.03] shadow-xl hover:shadow-2xl"
           >
             Start the Booth
-          </button>
+          </Link>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginTop: '3rem' }} className="text-bg/30">
             <span className="font-typewriter text-xs uppercase tracking-widest">Free</span>
@@ -105,6 +111,9 @@ function LandingPage({ onStartBooth }) {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
