@@ -686,12 +686,27 @@ function ResultScreen() {
                 border-right: 1px solid #e8e8e8 !important;
                 border-bottom: none !important;
                 min-height: calc(100dvh - 73px) !important;
+                overflow: auto !important;
               }
               .result-controls-section {
                 width: 340px !important;
                 flex-shrink: 0 !important;
                 max-height: calc(100dvh - 73px) !important;
                 overflow-y: auto !important;
+              }
+              .result-strip-wrapper {
+                transform: scale(0.9);
+                transform-origin: center center;
+              }
+            }
+            @media (max-width: 899px) {
+              .result-strip-section {
+                max-height: 55vh !important;
+                overflow: auto !important;
+              }
+              .result-strip-wrapper {
+                transform: scale(0.85);
+                transform-origin: center center;
               }
             }
           `}</style>
@@ -703,13 +718,14 @@ function ResultScreen() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '32px 24px',
+              padding: '24px 16px',
               backgroundColor: '#f7f7f5',
               borderBottom: '1px solid #e8e8e8',
             }}
           >
             <div
               ref={stripRef}
+              className="result-strip-wrapper"
               style={{
                 position: 'relative',
                 backgroundColor: templateStyles.background,

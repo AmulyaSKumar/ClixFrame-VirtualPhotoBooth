@@ -10,12 +10,15 @@ function SelectionCard({ children, name, description, isSelected, onClick, varia
       className="relative flex flex-col bg-white text-left"
       style={{
         padding: '14px 12px 12px',
-        border: isSelected ? '1.5px solid #0a0a0a' : '1px solid #e8e8e8',
+        border: isSelected ? '2px solid #0a0a0a' : '1px solid #e8e8e8',
         borderRadius: '12px',
         minHeight,
         cursor: 'pointer',
-        transition: 'border-color 0.15s ease',
+        transition: 'all 0.15s ease',
         backgroundColor: '#ffffff',
+        boxShadow: isSelected ? '0 0 0 3px rgba(10, 10, 10, 0.1)' : 'none',
+        // Compensate for border width change to prevent layout shift
+        margin: isSelected ? '0' : '0.5px',
       }}
       onMouseEnter={(e) => {
         if (!isSelected) {
@@ -28,19 +31,36 @@ function SelectionCard({ children, name, description, isSelected, onClick, varia
         }
       }}
     >
-      {/* Selection Dot */}
+      {/* Selection Checkmark Badge */}
       {isSelected && (
         <div
           style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
-            width: '7px',
-            height: '7px',
+            top: '-8px',
+            right: '-8px',
+            width: '22px',
+            height: '22px',
             backgroundColor: '#0a0a0a',
             borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
           }}
-        />
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
       )}
 
       {/* Preview Content */}

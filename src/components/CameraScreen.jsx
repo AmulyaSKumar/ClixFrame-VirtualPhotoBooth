@@ -181,7 +181,8 @@ function CameraScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '8px',
-        marginTop: '16px',
+        marginTop: '12px',
+        marginBottom: '8px',
       }}
     >
       {Array.from({ length: totalPhotos }, (_, i) => {
@@ -233,6 +234,12 @@ function CameraScreen() {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+        /* Hide camera switch button on desktop */
+        @media (min-width: 768px) {
+          .camera-switch-btn {
+            display: none !important;
+          }
+        }
       `}</style>
     </div>
   )
@@ -261,7 +268,7 @@ function CameraScreen() {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: '16px',
-          paddingBottom: '8px',
+          paddingBottom: '4px',
         }}
       >
         {/* Left buttons group */}
@@ -296,10 +303,11 @@ function CameraScreen() {
             <span>Exit</span>
           </button>
 
-          {/* Camera Toggle Button */}
+          {/* Camera Toggle Button - Hidden on desktop via CSS */}
           <button
             onClick={toggleCamera}
             disabled={!cameraReady}
+            className="camera-switch-btn"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -331,7 +339,7 @@ function CameraScreen() {
               <path d="M21 3l-7 7" />
               <path d="M3 21l7-7" />
             </svg>
-            <span style={{ marginLeft: '2px' }}>{facingMode === 'user' ? 'Rear' : 'Front'}</span>
+            <span style={{ marginLeft: '2px' }}>Switch camera</span>
           </button>
         </div>
 
@@ -352,16 +360,8 @@ function CameraScreen() {
           </span>
         </Link>
 
-        {/* Photo Counter */}
-        <span
-          style={{
-            fontSize: '13px',
-            fontWeight: 500,
-            color: '#888',
-          }}
-        >
-          {photoNumber} / {totalPhotos}
-        </span>
+        {/* Empty spacer for balance (removed photo counter) */}
+        <div style={{ width: '80px' }} />
       </header>
 
       {/* Progress Dots */}
@@ -372,9 +372,10 @@ function CameraScreen() {
         style={{
           flex: 1,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '24px 0',
+          padding: '16px 0',
         }}
       >
         <div
@@ -382,7 +383,7 @@ function CameraScreen() {
             position: 'relative',
             width: '100%',
             maxWidth: '720px',
-            maxHeight: 'min(70vh, 70dvh, 500px)', // Use dvh for iOS Safari
+            maxHeight: 'min(65vh, 65dvh, 480px)', // Use dvh for iOS Safari
             aspectRatio: '4 / 3',
             borderRadius: '8px',
             overflow: 'hidden',
@@ -590,23 +591,24 @@ function CameraScreen() {
                 />
               )}
 
-              {/* Countdown - Top Right */}
+              {/* Countdown - Center of video */}
               {isCapturing && !isPaused && !allPhotosDone && cameraReady && (
                 <div
                   key={countdownKey}
                   style={{
                     position: 'absolute',
-                    top: '16px',
-                    right: '16px',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
                     animation: 'fadeIn 0.2s ease',
                   }}
                 >
                   <span
                     style={{
-                      fontSize: '48px',
+                      fontSize: '72px',
                       fontWeight: 600,
                       color: '#fff',
-                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                      textShadow: '0 2px 16px rgba(0, 0, 0, 0.5)',
                       lineHeight: 1,
                     }}
                   >
@@ -644,39 +646,6 @@ function CameraScreen() {
                       Done!
                     </span>
                   </div>
-                </div>
-              )}
-
-              {/* Get Ready - Top Right */}
-              {isPaused && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    textAlign: 'right',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '24px',
-                      fontWeight: 600,
-                      color: '#fff',
-                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-                      display: 'block',
-                    }}
-                  >
-                    Get Ready!
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      color: '#fff',
-                      textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    Photo {photoNumber} of {totalPhotos}
-                  </span>
                 </div>
               )}
 
@@ -734,6 +703,41 @@ function CameraScreen() {
             </>
           )}
         </div>
+
+        {/* Status Info - Outside video frame */}
+        {!cameraError && cameraReady && (isPaused || (isCapturing && !allPhotosDone)) && (
+          <div
+            style={{
+              marginTop: '16px',
+              textAlign: 'center',
+              animation: 'fadeIn 0.3s ease',
+            }}
+          >
+            {isPaused && (
+              <>
+                <span
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: 600,
+                    color: '#0a0a0a',
+                    display: 'block',
+                    marginBottom: '4px',
+                  }}
+                >
+                  Get Ready!
+                </span>
+                <span
+                  style={{
+                    fontSize: '14px',
+                    color: '#666',
+                  }}
+                >
+                  Photo {photoNumber} of {totalPhotos}
+                </span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bottom Prompt Text */}
@@ -741,8 +745,7 @@ function CameraScreen() {
         <div
           style={{
             textAlign: 'center',
-            paddingBottom: '32px',
-            marginTop: '-8px',
+            paddingBottom: '24px',
           }}
         >
           <p

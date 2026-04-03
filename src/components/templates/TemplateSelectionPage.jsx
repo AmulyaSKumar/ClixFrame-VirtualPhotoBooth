@@ -87,7 +87,7 @@ function TemplateSelectionPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pb-32 overflow-y-auto" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pb-40 overflow-y-auto" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
         <div className="py-6">
           {Object.entries(templateOptions).map(([sectionKey, templates]) => (
             <div key={sectionKey} className="mb-8">
