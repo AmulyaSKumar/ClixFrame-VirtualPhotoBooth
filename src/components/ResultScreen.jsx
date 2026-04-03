@@ -4,8 +4,12 @@ import { Link } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import { useBooth } from '../context/BoothContext'
 
-// Minimal sticker set
-const stickers = ['⭐', '❤️', '✨', '🎉', '😎', '💕']
+// Expanded sticker set with categories
+const stickerRows = [
+  ['⭐', '❤️', '✨', '🎉', '😎', '💕'],
+  ['🔥', '💫', '🌟', '💖', '🎀', '🦋'],
+  ['🌈', '☀️', '🌸', '💐', '🍀', '🎈'],
+]
 
 // Filter options
 const filters = [
@@ -35,6 +39,7 @@ function ResultScreen() {
   const [isSharing, setIsSharing] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [canShare, setCanShare] = useState(false)
+  const [showMoreStickers, setShowMoreStickers] = useState(false)
 
   // Check if Web Share API is available
   useEffect(() => {
@@ -594,14 +599,24 @@ function ResultScreen() {
   }
 
   // Section label component
-  const SectionLabel = ({ children }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-      <span style={{ fontSize: '11px', letterSpacing: '0.13em', textTransform: 'uppercase', color: '#aaa', whiteSpace: 'nowrap' }}>
-        {children}
-      </span>
-      <div style={{ flex: 1, height: '0.5px', backgroundColor: '#ddd' }} />
+  const SectionLabel = ({ children, hint }) => (
+    <div style={{ marginBottom: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: hint ? '6px' : '0' }}>
+        <span style={{ fontSize: '11px', letterSpacing: '0.13em', textTransform: 'uppercase', color: '#888', fontWeight: 500, whiteSpace: 'nowrap' }}>
+          {children}
+        </span>
+        <div style={{ flex: 1, height: '1px', backgroundColor: '#e8e8e8' }} />
+      </div>
+      {hint && (
+        <p style={{ fontSize: '12px', color: '#999', margin: 0 }}>
+          {hint}
+        </p>
+      )}
     </div>
   )
+
+  // Get visible stickers based on expand state
+  const visibleStickers = showMoreStickers ? stickerRows.flat() : stickerRows[0]
 
   return (
     <div style={{ minHeight: '100dvh', width: '100%', maxWidth: '100vw', backgroundColor: '#f7f7f5', display: 'flex', flexDirection: 'column', overflowX: 'hidden', boxSizing: 'border-box' }}>
@@ -614,7 +629,7 @@ function ResultScreen() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span>Retake</span>
+          <span>Retake photos</span>
         </button>
 
         <Link
@@ -657,176 +672,258 @@ function ResultScreen() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - Two column layout on desktop */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-        {/* Photo Strip Section */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', backgroundColor: '#f7f7f5', minHeight: '50vh' }}>
+        <div className="result-layout" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Desktop: side by side | Mobile: stacked */}
+          <style>{`
+            @media (min-width: 900px) {
+              .result-layout {
+                flex-direction: row !important;
+              }
+              .result-strip-section {
+                flex: 1 !important;
+                border-right: 1px solid #e8e8e8 !important;
+                border-bottom: none !important;
+                min-height: calc(100dvh - 73px) !important;
+              }
+              .result-controls-section {
+                width: 340px !important;
+                flex-shrink: 0 !important;
+                max-height: calc(100dvh - 73px) !important;
+                overflow-y: auto !important;
+              }
+            }
+          `}</style>
+
+          {/* Photo Strip Section */}
           <div
-            ref={stripRef}
+            className="result-strip-section"
             style={{
-              position: 'relative',
-              backgroundColor: templateStyles.background,
-              border: templateStyles.border || '1px solid #e8e8e8',
-              borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : '12px',
-              padding: templateStyles.padding || '16px',
-              boxShadow: templateStyles.boxShadow || (templateCategory === 'newspaper' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'),
-              ...layoutStyles.wrapper,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '32px 24px',
+              backgroundColor: '#f7f7f5',
+              borderBottom: '1px solid #e8e8e8',
             }}
-            onPointerDown={() => setActiveStickerId(null)}
           >
-            {/* Standard Logo Header (for minimal, polaroid, film templates only) */}
-            {templateCategory !== 'newspaper' && (
-              <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
-                <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>
-                  Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
-                </span>
-              </div>
-            )}
+            <div
+              ref={stripRef}
+              style={{
+                position: 'relative',
+                backgroundColor: templateStyles.background,
+                border: templateStyles.border || '1px solid #e8e8e8',
+                borderRadius: templateCategory === 'newspaper' ? '4px' : templateCategory === 'film' ? '4px' : '12px',
+                padding: templateStyles.padding || '16px',
+                boxShadow: templateStyles.boxShadow || (templateCategory === 'newspaper' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'),
+                ...layoutStyles.wrapper,
+              }}
+              onPointerDown={() => setActiveStickerId(null)}
+            >
+              {/* Standard Logo Header (for minimal, polaroid, film templates only) */}
+              {templateCategory !== 'newspaper' && (
+                <div style={{ textAlign: 'center', paddingBottom: '8px', marginBottom: '8px', borderBottom: '1px dashed #e8e8e8' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 500, color: templateStyles.textColor || '#0a0a0a', letterSpacing: '-0.02em' }}>
+                    Clix<span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>frame</span>
+                  </span>
+                </div>
+              )}
 
-            {/* Photos */}
-            {renderPhotoStrip()}
+              {/* Photos */}
+              {renderPhotoStrip()}
 
-            {/* Polaroid Caption */}
-            {templateCategory === 'polaroid' && (
-              <div style={{ textAlign: 'center', marginTop: '8px', fontStyle: 'italic', fontSize: '11px', color: '#888', fontFamily: 'Georgia, serif' }}>
-                memories
-              </div>
-            )}
+              {/* Polaroid Caption */}
+              {templateCategory === 'polaroid' && (
+                <div style={{ textAlign: 'center', marginTop: '8px', fontStyle: 'italic', fontSize: '11px', color: '#888', fontFamily: 'Georgia, serif' }}>
+                  memories
+                </div>
+              )}
 
-            {/* Placed Stickers */}
-            {placedStickers.map((sticker) => (
-              <div
-                key={sticker.id}
-                style={{
-                  position: 'absolute',
-                  left: sticker.x,
-                  top: sticker.y,
-                  width: sticker.size,
-                  height: sticker.size,
-                  cursor: 'grab',
-                  userSelect: 'none',
-                  outline: activeStickerId === sticker.id ? '2px solid #0a0a0a' : 'none',
-                  outlineOffset: '2px',
-                  borderRadius: '4px',
-                }}
-                onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
-              >
-                <span style={{ fontSize: '24px' }}>{sticker.emoji}</span>
-                {activeStickerId === sticker.id && (
-                  <button
-                    onClick={() => handleDeleteSticker(sticker.id)}
-                    style={{ position: 'absolute', top: '-8px', right: '-8px', width: '18px', height: '18px', backgroundColor: '#0a0a0a', color: '#fff', border: 'none', borderRadius: '50%', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Editing Panel */}
-        <div style={{ borderTop: '1px solid #e8e8e8', backgroundColor: '#fff', padding: '24px 16px' }}>
-          {/* Layout Info */}
-          <div style={{ marginBottom: '20px', padding: '12px', backgroundColor: '#f7f7f5', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Current Style</div>
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#0a0a0a' }}>
-              {selectedTemplate?.name || 'Clean white'}{selectedLayout?.name ? ` · ${selectedLayout.name}` : ''}
-            </div>
-          </div>
-
-          {/* Filter Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <SectionLabel>Filter</SectionLabel>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {filters.map((filter) => (
-                <button
-                  key={filter.name}
-                  onClick={() => setSelectedFilter(filter.name)}
+              {/* Placed Stickers */}
+              {placedStickers.map((sticker) => (
+                <div
+                  key={sticker.id}
                   style={{
-                    padding: '8px 16px',
-                    border: selectedFilter === filter.name ? '1px solid #0a0a0a' : '1px solid #e8e8e8',
-                    borderRadius: '99px',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    backgroundColor: selectedFilter === filter.name ? '#0a0a0a' : '#fff',
-                    color: selectedFilter === filter.name ? '#fff' : '#555',
-                    transition: 'all 0.15s ease',
+                    position: 'absolute',
+                    left: sticker.x,
+                    top: sticker.y,
+                    width: sticker.size,
+                    height: sticker.size,
+                    cursor: 'grab',
+                    userSelect: 'none',
+                    outline: activeStickerId === sticker.id ? '2px solid #0a0a0a' : 'none',
+                    outlineOffset: '2px',
+                    borderRadius: '4px',
                   }}
+                  onPointerDown={(e) => handleStickerDragStart(e, sticker.id)}
                 >
-                  {filter.name}
-                </button>
+                  <span style={{ fontSize: '24px' }}>{sticker.emoji}</span>
+                  {activeStickerId === sticker.id && (
+                    <button
+                      onClick={() => handleDeleteSticker(sticker.id)}
+                      style={{ position: 'absolute', top: '-8px', right: '-8px', width: '18px', height: '18px', backgroundColor: '#0a0a0a', color: '#fff', border: 'none', borderRadius: '50%', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Stickers Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <SectionLabel>Stickers</SectionLabel>
-            <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '12px', textAlign: 'center' }}>
-              Tap to add, drag to move
-            </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {stickers.map((sticker, index) => (
+          {/* Controls Sidebar */}
+          <div
+            className="result-controls-section"
+            style={{
+              backgroundColor: '#fff',
+              padding: '24px',
+            }}
+          >
+            {/* Current Style Info */}
+            <div style={{ marginBottom: '24px', padding: '14px 16px', backgroundColor: '#f7f7f5', borderRadius: '10px' }}>
+              <div style={{ fontSize: '10px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Current Style</div>
+              <div style={{ fontSize: '14px', fontWeight: 500, color: '#0a0a0a' }}>
+                {selectedTemplate?.name || 'Clean white'}{selectedLayout?.name ? ` · ${selectedLayout.name}` : ''}
+              </div>
+            </div>
+
+            {/* Filter Section */}
+            <div style={{ marginBottom: '28px' }}>
+              <SectionLabel>Filter</SectionLabel>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {filters.map((filter) => (
+                  <button
+                    key={filter.name}
+                    onClick={() => setSelectedFilter(filter.name)}
+                    style={{
+                      padding: '8px 16px',
+                      border: selectedFilter === filter.name ? '1px solid #0a0a0a' : '1px solid #e8e8e8',
+                      borderRadius: '99px',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      backgroundColor: selectedFilter === filter.name ? '#0a0a0a' : '#fff',
+                      color: selectedFilter === filter.name ? '#fff' : '#555',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {filter.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Stickers Section */}
+            <div style={{ marginBottom: '28px' }}>
+              <SectionLabel hint="Tap to add, drag to move">Stickers</SectionLabel>
+
+              {/* Sticker Palette Card */}
+              <div style={{
+                backgroundColor: '#fafafa',
+                border: '1px solid #e8e8e8',
+                borderRadius: '12px',
+                padding: '12px',
+              }}>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {visibleStickers.map((sticker, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAddSticker(sticker)}
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px',
+                        backgroundColor: '#fff',
+                        border: '1px solid #e8e8e8',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.1)'
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      {sticker}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Show more/less toggle */}
                 <button
-                  key={index}
-                  onClick={() => handleAddSticker(sticker)}
+                  onClick={() => setShowMoreStickers(!showMoreStickers)}
                   style={{
-                    width: '44px',
-                    height: '44px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '22px',
-                    backgroundColor: '#f7f7f5',
-                    border: '1px solid #e8e8e8',
-                    borderRadius: '8px',
+                    gap: '4px',
+                    width: '100%',
+                    marginTop: '10px',
+                    padding: '8px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: '#888',
+                    fontSize: '12px',
                     cursor: 'pointer',
-                    transition: 'transform 0.15s ease',
+                    transition: 'color 0.15s ease',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#555' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#888' }}
                 >
-                  {sticker}
+                  <span>{showMoreStickers ? 'Show less' : 'More stickers'}</span>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ transform: showMoreStickers ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }}
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={handleRetakeAll}
-              style={{
-                padding: '12px 24px',
-                border: '1px solid #e8e8e8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                backgroundColor: '#fff',
-                color: '#555',
-              }}
-            >
-              Retake Photos
-            </button>
-            <Link
-              to="/"
-              onClick={resetBooth}
-              style={{
-                padding: '12px 24px',
-                border: '1px solid #e8e8e8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                backgroundColor: '#fff',
-                color: '#555',
-                textDecoration: 'none',
-              }}
-            >
-              Start New
-            </Link>
+            {/* Start Over - Subtle link at bottom */}
+            <div style={{
+              marginTop: 'auto',
+              paddingTop: '20px',
+              borderTop: '1px solid #f0f0f0',
+              textAlign: 'center',
+            }}>
+              <Link
+                to="/"
+                onClick={resetBooth}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  color: '#aaa',
+                  fontSize: '12px',
+                  textDecoration: 'none',
+                  transition: 'color 0.15s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#666' }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#aaa' }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+                <span>Start over with new photos</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

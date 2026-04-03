@@ -13,10 +13,18 @@ npm install      # Install dependencies
 npm run dev      # Start dev server at http://localhost:5173
 npm run build    # Production build to dist/
 npm run preview  # Preview production build locally
-npm run lint     # ESLint for .js/.jsx files
+npm run lint     # ESLint for .js/.jsx files (uses flat config v9)
 ```
 
+**Note:** Camera access requires HTTPS or localhost. The dev server at localhost:5173 works for testing.
+
 ## Architecture
+
+### Provider Hierarchy (main.jsx)
+
+```
+BrowserRouter → BoothProvider → App
+```
 
 ### React Router + Context Navigation
 
@@ -48,13 +56,16 @@ The countdown timer and photo capture logic runs in a `useEffect` inside BoothCo
 **Templates** (`src/components/templates/shared/TemplatePreviews.jsx`):
 - Define frame styling organized by category: `minimal`, `newspaper`, `polaroid`, `film`
 - Properties: `id`, `name`, `description`, `preview` component, `needsLayout`, `fixedPhotos`, `fixedLayoutId`
-- Templates with `needsLayout: false` skip layout selection and use `fixedPhotos` count
+- Templates with `needsLayout: true` → user picks a layout (minimal, film categories)
+- Templates with `needsLayout: false` → fixed photo count, skip layout selection (newspaper, polaroid categories)
 - Exported as `templateOptions` (by category) and `allTemplates` (flat array)
 
 **Layouts** (`src/components/templates/shared/LayoutPreviews.jsx`):
 - Define photo arrangement (classic-strip, grid-2x2, wide-strip, big-plus-two, filmstrip, single-portrait, three-wide, hero-row)
 - Each layout specifies `photos` count (1-6) which determines capture session length
 - Exported as `layoutOptions` array
+
+**Photo Count Resolution:** `selectedLayout?.photos || selectedTemplate?.fixedPhotos || 4`
 
 **Photo Capture Flow:**
 1. CameraScreen requests webcam via `getUserMedia`, reports ready state via `handleCameraReady`
