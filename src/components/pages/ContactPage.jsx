@@ -85,7 +85,7 @@ function ContactPage() {
       </div>
 
       {/* Contact Form Section */}
-      <section className="py-12 sm:py-20 md:py-28 bg-paper flex justify-center">
+      <section className="py-16 sm:py-24 md:py-32 bg-paper flex justify-center">
         <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '600px' }}>
           <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
             <div className="grid sm:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
@@ -100,7 +100,7 @@ function ContactPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full h-11 sm:h-12 md:h-14 bg-bg border-b-2 border-ink/20 px-0 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
+                  className="w-full h-12 sm:h-14 bg-bg border border-ink/30 px-4 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
                   placeholder="John Doe"
                 />
               </div>
@@ -115,7 +115,7 @@ function ContactPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full h-11 sm:h-12 md:h-14 bg-bg border-b-2 border-ink/20 px-0 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
+                  className="w-full h-12 sm:h-14 bg-bg border border-ink/30 px-4 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
                   placeholder="john@example.com"
                 />
               </div>
@@ -132,7 +132,7 @@ function ContactPage() {
                 value={formData.subject}
                 onChange={handleChange}
                 required
-                className="w-full h-11 sm:h-12 md:h-14 bg-bg border-b-2 border-ink/20 px-0 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
+                className="w-full h-12 sm:h-14 bg-bg border border-ink/30 px-4 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors"
                 placeholder="How can we help?"
               />
             </div>
@@ -148,23 +148,24 @@ function ContactPage() {
                 onChange={handleChange}
                 required
                 rows={5}
-                className="w-full bg-bg border-2 border-ink/20 p-3 sm:p-4 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors resize-none"
+                className="w-full bg-bg border border-ink/30 p-4 font-typewriter text-sm sm:text-base text-ink focus:outline-none focus:border-ink transition-colors resize-none"
                 placeholder="Tell us what's on your mind..."
               />
             </div>
 
             {/* Status Message */}
             {status.message && (
-              <div className={`p-3 sm:p-4 border-l-4 ${status.type === 'success' ? 'border-ink bg-bg' : 'border-mid bg-bg'}`}>
-                <p className="font-body text-sm text-ink">{status.message}</p>
+              <div className={`p-4 border-l-4 ${status.type === 'success' ? 'border-ink bg-bg' : 'border-mid bg-bg'}`}>
+                <p className="font-body text-sm sm:text-base text-ink">{status.message}</p>
               </div>
             )}
 
-            <div className="text-center pt-2 sm:pt-4">
+            <div className="text-center pt-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto font-subheading text-sm sm:text-base md:text-lg font-semibold bg-ink text-bg px-8 sm:px-12 md:px-16 py-3 sm:py-4 md:py-5 rounded-full hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto font-typewriter text-base sm:text-lg font-semibold uppercase tracking-wider bg-ink text-bg px-10 sm:px-14 py-4 sm:py-5 hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ letterSpacing: '0.08em' }}
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
@@ -177,67 +178,61 @@ function ContactPage() {
       <div className="h-px w-full bg-ink/10" />
 
       {/* FAQ Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-bg flex justify-center">
+      <section className="py-20 sm:py-28 md:py-36 bg-bg flex justify-center">
         <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '900px' }}>
           {/* Section Header */}
-          <div className="text-center mb-10 sm:mb-14">
+          <div className="text-center mb-12 sm:mb-16">
             <p className="font-accent text-xl sm:text-2xl text-ink/70 mb-4">FAQ</p>
             <h2 className="font-hero text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-ink font-bold leading-tight tracking-tight">
               Common questions
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 md:gap-10">
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">How do I use ClixFrame?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+          <div className="grid sm:grid-cols-2 gap-x-8 sm:gap-x-12 md:gap-x-16">
+            <div className="py-6 border-b border-ink/10">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">How do I use ClixFrame?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 Click "Start the Booth" on the homepage, choose a template and layout, then allow camera access to start capturing photos.
               </p>
             </div>
 
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">Are my photos stored anywhere?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+            <div className="py-6 border-b border-ink/10">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">Are my photos stored anywhere?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 No! All photos are processed locally in your browser. We never upload or store your photos on any server.
               </p>
             </div>
 
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">Is ClixFrame free?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+            <div className="py-6 border-b border-ink/10">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">Is ClixFrame free?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 Yes, ClixFrame is completely free to use with no hidden costs or premium tiers.
               </p>
             </div>
 
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">What browsers are supported?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+            <div className="py-6 border-b border-ink/10">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">What browsers are supported?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 ClixFrame works on all modern browsers including Chrome, Firefox, Safari, and Edge.
               </p>
             </div>
 
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">Can I use it on mobile?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+            <div className="py-6 border-b border-ink/10 sm:border-b-0">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">Can I use it on mobile?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 Yes! ClixFrame is fully responsive and works on mobile devices with front or back camera.
               </p>
             </div>
 
-            <div>
-              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-2 sm:mb-3">How long until I get a reply?</h3>
-              <p className="font-body text-mid text-sm leading-relaxed">
+            <div className="py-6">
+              <h3 className="font-subheading text-base sm:text-lg text-ink font-semibold mb-3">How long until I get a reply?</h3>
+              <p className="font-body text-mid text-sm sm:text-base leading-relaxed">
                 We typically respond within 24-48 hours during business days.
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Divider */}
-      <div className="h-px w-full bg-ink/10" />
-
-      {/* Footer Buffer */}
-      <div className="w-full h-16 sm:h-24 md:h-32 bg-bg" />
 
       {/* Footer */}
       <Footer />

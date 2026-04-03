@@ -55,11 +55,12 @@ function Navbar({ variant = 'default' }) {
           ))}
           <Link
             to="/templates"
-            className={`font-subheading text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:scale-[1.02] ${
+            className={`font-typewriter text-xs font-semibold uppercase tracking-wider px-5 py-2.5 transition-all hover:scale-[1.02] ${
               isDark
                 ? 'bg-bg text-ink hover:bg-paper'
                 : 'bg-ink text-bg hover:bg-ink/90'
             }`}
+            style={{ letterSpacing: '0.08em' }}
           >
             Start Booth
           </Link>
@@ -69,11 +70,12 @@ function Navbar({ variant = 'default' }) {
         <div className="flex md:hidden items-center gap-3">
           <Link
             to="/templates"
-            className={`font-subheading text-xs font-semibold px-4 py-2 rounded-full ${
+            className={`font-typewriter text-xs font-semibold uppercase px-4 py-2 ${
               isDark
                 ? 'bg-bg text-ink'
                 : 'bg-ink text-bg'
             }`}
+            style={{ letterSpacing: '0.06em' }}
           >
             Start
           </Link>
@@ -120,11 +122,12 @@ function Navbar({ variant = 'default' }) {
               <Link
                 to="/templates"
                 onClick={() => setIsMenuOpen(false)}
-                className={`block text-center font-subheading text-sm font-semibold px-5 py-3 rounded-full ${
+                className={`block text-center font-typewriter text-sm font-semibold uppercase px-5 py-3 ${
                   isDark
                     ? 'bg-bg text-ink'
                     : 'bg-ink text-bg'
                 }`}
+                style={{ letterSpacing: '0.08em' }}
               >
                 Start the Booth
               </Link>
