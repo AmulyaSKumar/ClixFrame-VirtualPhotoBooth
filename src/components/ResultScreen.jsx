@@ -182,10 +182,12 @@ function ResultScreen() {
         canvas.toBlob(resolve, 'image/png', 1.0)
       })
 
-      const file = new File([blob], `clixframe-${templateId}-${Date.now()}.png`, { type: 'image/png' })
+      const file = blob && globalThis.File
+        ? new globalThis.File([blob], `clixframe-${templateId}-${Date.now()}.png`, { type: 'image/png' })
+        : null
 
       // Check if we can share files
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: 'My ClixFrame Photo',
           text: 'Check out my photo booth strip from ClixFrame!',

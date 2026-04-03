@@ -35,7 +35,7 @@ function AboutPage() {
             <h2 className="font-hero text-2xl sm:text-3xl md:text-4xl text-ink font-bold leading-tight tracking-tight mb-8">
               What is ClixFrame?
             </h2>
-            <div className="space-y-5 font-body text-mid text-base sm:text-lg leading-relaxed">
+            <div className="space-y-5 font-body text-mid text-base sm:text-lg leading-relaxed" style={{ maxWidth: '680px', margin: '0 auto' }}>
               <p>
                 ClixFrame brings the classic photo booth experience to your browser. Whether you're at a party, hanging out with friends, or just having a moment of self-expression.
               </p>
@@ -164,7 +164,7 @@ function AboutPage() {
       <div className="h-px w-full bg-ink/10" />
 
       {/* CTA Section */}
-      <section className="py-24 sm:py-32 md:py-40 bg-ink flex justify-center">
+      <section className="pt-24 pb-32 sm:pt-32 sm:pb-40 md:pt-40 md:pb-48 bg-ink flex justify-center">
         <div className="px-5 sm:px-8 lg:px-12 text-center" style={{ maxWidth: '700px' }}>
           <p className="font-accent text-xl sm:text-2xl md:text-3xl text-bg/60 mb-4 sm:mb-6">Ready to start?</p>
           <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-bg font-bold leading-tight tracking-tight mb-4 sm:mb-6">

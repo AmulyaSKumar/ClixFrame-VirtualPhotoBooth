@@ -29,13 +29,13 @@ function PrivacyPage() {
 
       {/* Privacy Highlight */}
       <section className="py-20 sm:py-28 md:py-36 bg-paper flex justify-center">
-        <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '800px' }}>
-          <div className="text-center">
+        <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '950px' }}>
+          <div>
             <p className="font-accent text-lg sm:text-xl text-ink/60 mb-3">Our Core Principle</p>
             <h2 className="font-hero text-2xl sm:text-3xl md:text-4xl text-ink font-bold leading-tight tracking-tight mb-8">
               Your photos stay with you
             </h2>
-            <div className="space-y-5 font-body text-mid text-base sm:text-lg leading-relaxed">
+            <div className="space-y-5 font-body text-mid text-base sm:text-lg leading-relaxed" style={{ maxWidth: '700px' }}>
               <p>
                 All photos are processed locally in your browser. We never upload, store, or have access to any photos you capture.
               </p>
@@ -51,8 +51,8 @@ function PrivacyPage() {
       <div className="h-px w-full bg-ink/10" />
 
       {/* Content Section */}
-      <section className="py-20 sm:py-28 md:py-36 bg-bg flex justify-center">
-        <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '900px' }}>
+      <section className="pt-20 pb-28 sm:pt-28 sm:pb-36 md:pt-36 md:pb-44 bg-bg flex justify-center">
+        <div className="px-5 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '950px' }}>
           <div className="space-y-16 sm:space-y-20 md:space-y-24">
 
             {/* Overview */}

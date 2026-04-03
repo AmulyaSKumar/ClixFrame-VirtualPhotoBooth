@@ -155,21 +155,51 @@ function ContactPage() {
 
             {/* Status Message */}
             {status.message && (
-              <div className={`p-4 border-l-4 ${status.type === 'success' ? 'border-ink bg-bg' : 'border-mid bg-bg'}`}>
-                <p className="font-body text-sm sm:text-base text-ink">{status.message}</p>
+              <div className={`p-6 rounded-lg text-center ${status.type === 'success' ? 'bg-ink/5 border border-ink/20' : 'bg-red-50 border border-red-200'}`}>
+                {status.type === 'success' ? (
+                  <>
+                    <div className="w-12 h-12 mx-auto mb-4 bg-ink/10 rounded-full flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-ink">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <p className="font-subheading text-lg text-ink font-semibold mb-2">Message sent!</p>
+                    <p className="font-body text-sm sm:text-base text-mid">
+                      Thanks for reaching out. We'll get back to you within 24-48 hours.
+                    </p>
+                  </>
+                ) : (
+                  <p className="font-body text-sm sm:text-base text-red-700">{status.message}</p>
+                )}
               </div>
             )}
 
-            <div className="text-center pt-4">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full sm:w-auto font-typewriter text-base sm:text-lg font-semibold uppercase tracking-wider bg-ink text-bg px-10 sm:px-14 py-4 sm:py-5 hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ letterSpacing: '0.08em' }}
-              >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-              </button>
-            </div>
+            {/* Hide form after success, show button only if not success */}
+            {status.type !== 'success' && (
+              <div className="text-center pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto font-typewriter text-base sm:text-lg font-semibold uppercase tracking-wider bg-ink text-bg px-10 sm:px-14 py-4 sm:py-5 hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ letterSpacing: '0.08em' }}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            )}
+
+            {/* Send another message link after success */}
+            {status.type === 'success' && (
+              <div className="text-center pt-4">
+                <button
+                  type="button"
+                  onClick={() => setStatus({ type: '', message: '' })}
+                  className="font-body text-sm text-mid hover:text-ink underline transition-colors"
+                >
+                  Send another message
+                </button>
+              </div>
+            )}
           </form>
         </div>
       </section>

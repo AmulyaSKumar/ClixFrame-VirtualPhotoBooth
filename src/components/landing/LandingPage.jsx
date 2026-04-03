@@ -22,7 +22,7 @@ function LandingPage() {
       <section id="features" className="pt-12 pb-20 sm:pt-16 sm:pb-28 md:pt-20 md:pb-36 bg-paper flex justify-center">
         <div className="px-6 sm:px-8 lg:px-12" style={{ width: '100%', maxWidth: '1100px' }}>
           {/* Section Header */}
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <p className="font-accent text-xl sm:text-2xl text-ink/70 mb-3">How it works</p>
             <h2 className="font-hero text-3xl sm:text-4xl md:text-5xl text-ink font-bold leading-tight tracking-tight">
               Three simple steps
@@ -30,9 +30,9 @@ function LandingPage() {
           </div>
 
           {/* Numbered Features */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem', textAlign: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', textAlign: 'center' }}>
             {/* Feature 1 */}
-            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+            <div className="group" style={{ padding: '1rem' }}>
               <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 01
               </span>
@@ -45,7 +45,7 @@ function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+            <div className="group" style={{ padding: '1rem' }}>
               <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 02
               </span>
@@ -58,7 +58,7 @@ function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="group" style={{ padding: '1.5rem 1rem' }}>
+            <div className="group" style={{ padding: '1rem' }}>
               <span className="font-hero text-4xl sm:text-5xl font-bold text-ink/20 leading-none transition-all duration-300 group-hover:text-ink/30" style={{ display: 'block' }}>
                 03
               </span>

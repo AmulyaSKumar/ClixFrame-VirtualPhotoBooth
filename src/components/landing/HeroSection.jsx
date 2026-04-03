@@ -26,11 +26,11 @@ function HeroSection() {
   }, [])
 
   return (
-    <section className="min-h-screen relative bg-bg flex items-center">
-      <div className="relative z-10 landing-container w-full px-5 sm:px-6 lg:px-8 py-8 sm:py-0">
+    <section className="min-h-[calc(100vh-80px)] relative bg-bg flex items-center justify-center">
+      <div className="relative z-10 landing-container w-full px-5 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Hero Content - Vertically centered */}
         <div className="w-full">
-          <div className="w-full grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+          <div className="w-full grid lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-14 items-center">
             {/* Left: Text Content */}
             <div className={`space-y-6 sm:space-y-8 lg:space-y-10 text-center lg:text-left order-1 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
               {/* Main Headline */}
@@ -100,7 +100,14 @@ function HeroSection() {
 
             {/* Right: Demo Preview */}
             <div className={`flex justify-center order-2 ${isVisible ? 'animate-slide-in-right delay-300' : 'opacity-0'}`}>
-              <DemoPreview className="w-44 sm:w-56 md:w-64 lg:w-72" />
+              <div className="relative">
+                <DemoPreview className="w-40 sm:w-48 md:w-56 lg:w-64" />
+                {/* Subtle fade at bottom */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
+                  style={{ background: 'linear-gradient(to bottom, transparent, #FAFAFA)' }}
+                />
+              </div>
             </div>
           </div>
         </div>
